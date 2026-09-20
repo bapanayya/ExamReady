@@ -9,12 +9,12 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',
   './assets/The-Competitive-Edge-Logo.jpg',
-  '../core/exams.json',
-  '../core/categories.json',
-  '../core/validator.js',
-  '../core/compressor.js',
-  '../core/image-processor.js',
-  '../core/pdf-builder.js'
+  './core/exams.json',
+  './core/categories.json',
+  './core/validator.js',
+  './core/compressor.js',
+  './core/image-processor.js',
+  './core/pdf-builder.js'
 ];
 
 self.addEventListener('install', (event) => {

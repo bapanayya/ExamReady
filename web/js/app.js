@@ -1,8 +1,8 @@
 import { InteractiveCropper } from './cropper.js';
-import { applyBrightnessContrast, applyDopStamp, cleanSignature, createStackedSignatures, enhanceThumbImpression } from '../../core/image-processor.js';
-import { compressCanvasToKB } from '../../core/compressor.js';
-import { validateFileAgainstSpec } from '../../core/validator.js';
-import { createPdfFromImages } from '../../core/pdf-builder.js';
+import { applyBrightnessContrast, applyDopStamp, cleanSignature, createStackedSignatures, enhanceThumbImpression } from '../core/image-processor.js';
+import { compressCanvasToKB } from '../core/compressor.js';
+import { validateFileAgainstSpec } from '../core/validator.js';
+import { createPdfFromImages } from '../core/pdf-builder.js';
 
 class ExamToolkitApp {
   constructor() {
@@ -56,10 +56,15 @@ class ExamToolkitApp {
 
   async loadData() {
     try {
-      const [examsRes, catRes] = await Promise.all([
-        fetch('../core/exams.json'),
-        fetch('../core/categories.json')
-      ]);
+      // Support both ./core (GitHub Pages / standalone web folder) and ../core (root dev server)
+      let examsRes = await fetch('./core/exams.json').catch(() => null);
+      if (!examsRes || !examsRes.ok) {
+        examsRes = await fetch('../core/exams.json');
+      }
+      let catRes = await fetch('./core/categories.json').catch(() => null);
+      if (!catRes || !catRes.ok) {
+        catRes = await fetch('../core/categories.json');
+      }
       this.exams = await examsRes.json();
       this.categories = await catRes.json();
     } catch (e) {
