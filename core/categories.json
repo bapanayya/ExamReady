@@ -1,0 +1,44 @@
+[
+  {
+    "id": "banking",
+    "name": "Banking & Insurance",
+    "icon": "bank",
+    "description": "IBPS PO/Clerk, SBI PO/Clerk, RBI, NABARD, LIC"
+  },
+  {
+    "id": "ssc",
+    "name": "SSC (Staff Selection Commission)",
+    "icon": "award",
+    "description": "SSC CGL, CHSL, MTS, GD Constable, CPO, Stenographer"
+  },
+  {
+    "id": "civil_services",
+    "name": "Civil Services & Defence (UPSC)",
+    "icon": "shield",
+    "description": "UPSC CSE, NDA, CDS, CAPF, Engineering Services"
+  },
+  {
+    "id": "railways",
+    "name": "Railways (RRB)",
+    "icon": "train",
+    "description": "RRB NTPC, ALP, Group D, JE"
+  },
+  {
+    "id": "entrance_nta",
+    "name": "NTA & National Entrance",
+    "icon": "graduation-cap",
+    "description": "NEET UG, JEE Main, CUET, GATE, CAT, UGC NET"
+  },
+  {
+    "id": "state_psc",
+    "name": "State PSC & Police",
+    "icon": "map-pin",
+    "description": "UPPSC, BPSC, MPSC, TNPSC, WBPSC, State Police"
+  },
+  {
+    "id": "custom",
+    "name": "Custom / Manual Specification",
+    "icon": "sliders",
+    "description": "Enter custom dimensions, KB range, and format manually"
+  }
+]

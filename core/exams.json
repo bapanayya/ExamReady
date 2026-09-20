@@ -1,0 +1,619 @@
+[
+  {
+    "id": "ibps-crp-po-clerk",
+    "name": "IBPS PO / Clerk / SO",
+    "shortName": "IBPS PO/Clerk",
+    "category": "banking",
+    "organizer": "Institute of Banking Personnel Selection",
+    "year": 2026,
+    "verifiedDate": "2026-08-01",
+    "officialSource": "IBPS Official CRP Notification Guidelines",
+    "specs": {
+      "photo": {
+        "width": 200,
+        "height": 230,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White or light coloured",
+        "instructions": "Recent passport style color picture. Preferred dimensions 200x230 pixels. Size between 20KB and 50KB. Caps, hats and dark glasses not acceptable.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 140,
+        "height": 60,
+        "minKB": 10,
+        "maxKB": 20,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Sign on white paper with black ink pen. Dimensions 140x60 pixels. Size between 10KB and 20KB. Signatures in CAPITAL LETTERS shall not be accepted."
+      },
+      "thumb": {
+        "width": 240,
+        "height": 240,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue or Black ink",
+        "background": "White paper",
+        "instructions": "Left thumb impression on white paper with black or blue ink. 240x240 pixels in 200 DPI (approx 3cm x 3cm). Size between 20KB and 50KB."
+      },
+      "declaration": {
+        "width": 800,
+        "height": 400,
+        "minKB": 50,
+        "maxKB": 100,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "sampleText": "I, _______ (Name of candidate), hereby declare that all the information submitted by me in the application form is correct, true and valid. I will present the supporting documents as and when required.",
+        "instructions": "Applicant must write declaration in English only clearly on white paper with black ink. In CAPITAL LETTERS will be rejected. 800x400 pixels preferred, 50KB to 100KB."
+      },
+      "document": {
+        "minKB": 100,
+        "maxKB": 500,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Certificates (Caste/EWS/PwD/Degree) in PDF format between 100KB and 500KB."
+      }
+    }
+  },
+  {
+    "id": "sbi-po-clerk",
+    "name": "SBI PO / Clerk (Junior Associates)",
+    "shortName": "SBI PO/Clerk",
+    "category": "banking",
+    "organizer": "State Bank of India",
+    "year": 2026,
+    "verifiedDate": "2026-07-15",
+    "officialSource": "SBI Central Recruitment Guidelines",
+    "specs": {
+      "photo": {
+        "width": 200,
+        "height": 230,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Light/White background",
+        "instructions": "Recent passport photograph. 200x230 pixels, 20KB - 50KB. Frontal view, visible ears.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 140,
+        "height": 60,
+        "minKB": 10,
+        "maxKB": 20,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Applicant signature in running hand with black ink. Size 10KB - 20KB, 140x60 pixels."
+      },
+      "thumb": {
+        "width": 240,
+        "height": 240,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue or Black ink",
+        "background": "White paper",
+        "instructions": "Clear left thumb impression. 240x240 pixels (3cm x 3cm), 20KB - 50KB."
+      },
+      "declaration": {
+        "width": 800,
+        "height": 400,
+        "minKB": 50,
+        "maxKB": 100,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "sampleText": "I, _______ (Name of candidate), Date of Birth ______, hereby declare that all the information submitted by me in the application form is correct, true and valid.",
+        "instructions": "Handwritten declaration on white paper with black ink. Size 50KB - 100KB, 800x400 pixels."
+      }
+    }
+  },
+  {
+    "id": "ssc-cgl-chsl",
+    "name": "SSC CGL / CHSL / MTS",
+    "shortName": "SSC CGL/CHSL",
+    "category": "ssc",
+    "organizer": "Staff Selection Commission",
+    "year": 2026,
+    "verifiedDate": "2026-06-10",
+    "officialSource": "Staff Selection Commission Examination Notices",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minWidth": 300,
+        "maxWidth": 400,
+        "minHeight": 400,
+        "maxHeight": 500,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Plain white background",
+        "instructions": "Live capture or uploaded passport photo without spectacles or cap. Plain white background. 3.5cm x 4.5cm (approx 350x450 px). Size 20KB to 50KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 400,
+        "height": 200,
+        "minWidth": 350,
+        "maxWidth": 450,
+        "minHeight": 150,
+        "maxHeight": 250,
+        "minKB": 10,
+        "maxKB": 20,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or Blue ink",
+        "background": "White paper",
+        "instructions": "Horizontal signature image. 4.0cm width x 2.0cm height (approx 400x200 px). File size between 10KB and 20KB. Illegible signature will be rejected."
+      }
+    }
+  },
+  {
+    "id": "ssc-gd-constable",
+    "name": "SSC GD Constable",
+    "shortName": "SSC GD",
+    "category": "ssc",
+    "organizer": "Staff Selection Commission",
+    "year": 2026,
+    "verifiedDate": "2026-05-20",
+    "officialSource": "SSC GD Official Notification",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White / Light background",
+        "instructions": "Front view, both ears visible, no spectacles or mask. Size 20KB - 50KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 400,
+        "height": 200,
+        "minKB": 10,
+        "maxKB": 20,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or Blue ink",
+        "background": "White paper",
+        "instructions": "4cm x 2cm aspect ratio. Size 10KB - 20KB. Crisp, clean signature."
+      }
+    }
+  },
+  {
+    "id": "upsc-cse-civil-services",
+    "name": "UPSC Civil Services (CSE / IAS / IPS)",
+    "shortName": "UPSC CSE",
+    "category": "civil_services",
+    "organizer": "Union Public Service Commission",
+    "year": 2026,
+    "verifiedDate": "2026-02-14",
+    "officialSource": "UPSC One Time Registration (OTR) and CSE Rules",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 350,
+        "minWidth": 350,
+        "maxWidth": 1000,
+        "minHeight": 350,
+        "maxHeight": 1000,
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White or light background",
+        "instructions": "Candidate's photograph must show 3/4th face coverage. As per latest UPSC guidelines, the photo MUST have the candidate's Name and Date of Photograph (DOP) printed at the bottom. Dimensions between 350x350 and 1000x1000 pixels. File size 20KB to 300KB.",
+        "dopRequired": true,
+        "dopFormat": "NAME\\nDD-MM-YYYY"
+      },
+      "signature": {
+        "width": 350,
+        "height": 350,
+        "minWidth": 350,
+        "maxWidth": 1000,
+        "minHeight": 350,
+        "maxHeight": 1000,
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink pen",
+        "background": "White paper",
+        "instructions": "Signature on white paper with black ballpoint pen. Dimensions between 350x350 and 1000x1000 pixels. File size between 20KB and 300KB."
+      },
+      "document": {
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Photo ID Card (Aadhaar / Passport / Voter ID) in PDF format. Size must be between 20KB and 300KB."
+      }
+    }
+  },
+  {
+    "id": "upsc-nda-cds",
+    "name": "UPSC NDA & NA / CDS",
+    "shortName": "UPSC NDA/CDS",
+    "category": "civil_services",
+    "organizer": "Union Public Service Commission",
+    "year": 2026,
+    "verifiedDate": "2026-03-01",
+    "officialSource": "UPSC NDA / CDS Official Guidelines",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 350,
+        "minWidth": 350,
+        "maxWidth": 1000,
+        "minHeight": 350,
+        "maxHeight": 1000,
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Plain white background",
+        "instructions": "Square aspect ratio. Dimensions 350x350 to 1000x1000 pixels. Name & Date of Photo stamped. File size 20KB - 300KB.",
+        "dopRequired": true
+      },
+      "signature": {
+        "width": 350,
+        "height": 350,
+        "minWidth": 350,
+        "maxWidth": 1000,
+        "minHeight": 350,
+        "maxHeight": 1000,
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Signature 350x350 to 1000x1000 px, 20KB to 300KB."
+      },
+      "document": {
+        "minKB": 20,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Identity Proof in PDF format between 20KB and 300KB."
+      }
+    }
+  },
+  {
+    "id": "rrb-ntpc-group-d",
+    "name": "Railway RRB NTPC / Group D / ALP",
+    "shortName": "RRB NTPC/ALP",
+    "category": "railways",
+    "organizer": "Railway Recruitment Boards",
+    "year": 2026,
+    "verifiedDate": "2026-04-12",
+    "officialSource": "RRB Centralized Employment Notice (CEN)",
+    "specs": {
+      "photo": {
+        "width": 320,
+        "height": 400,
+        "minWidth": 240,
+        "maxWidth": 320,
+        "minHeight": 320,
+        "maxHeight": 400,
+        "minKB": 30,
+        "maxKB": 70,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Plain white or light grey",
+        "instructions": "35mm x 45mm passport photograph (approx 320x400 px). Size 30KB to 70KB. No caps, dark goggles, or headwear (except religious).",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 140,
+        "height": 60,
+        "minWidth": 140,
+        "maxWidth": 160,
+        "minHeight": 50,
+        "maxHeight": 70,
+        "minKB": 30,
+        "maxKB": 70,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Sign in running hand on white paper with black ballpoint pen. Size between 30KB and 70KB."
+      },
+      "document": {
+        "minKB": 100,
+        "maxKB": 500,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "SC/ST/OBC/EWS certificate in PDF format between 100KB and 500KB."
+      }
+    }
+  },
+  {
+    "id": "nta-neet-ug",
+    "name": "NEET UG (National Eligibility Entrance Test)",
+    "shortName": "NEET UG",
+    "category": "entrance_nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-02-01",
+    "officialSource": "NTA NEET Information Bulletin",
+    "specs": {
+      "photo": {
+        "width": 400,
+        "height": 500,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Plain white background only",
+        "instructions": "Passport size photograph with 80% face coverage, visible ears against white background. Stamped with candidate's Name and Date of taking photo at the bottom. Size 10KB - 200KB.",
+        "dopRequired": true
+      },
+      "signature": {
+        "width": 300,
+        "height": 100,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Signature with black ink on white paper in running hand. Size 4KB - 30KB. Capital letters will be rejected."
+      },
+      "thumb": {
+        "width": 300,
+        "height": 200,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue or Black ink",
+        "background": "White paper",
+        "instructions": "Left and right fingers and thumb impressions on white paper. Size 10KB - 200KB."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Class 10th marksheet or category certificate in PDF format (50KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-jee-main",
+    "name": "JEE Main (Joint Entrance Examination)",
+    "shortName": "JEE Main",
+    "category": "entrance_nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-01-10",
+    "officialSource": "NTA JEE Information Bulletin",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "Recent photograph in color or black & white with 80% face visible against white background. Size 10KB to 200KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink pen",
+        "background": "White paper",
+        "instructions": "Signature on white paper with black ballpoint pen. Size between 4KB and 30KB."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Category certificate/PwD certificate in PDF format between 50KB and 300KB."
+      }
+    }
+  },
+  {
+    "id": "gate-exam",
+    "name": "GATE (Graduate Aptitude Test in Engineering)",
+    "shortName": "GATE",
+    "category": "entrance_nta",
+    "organizer": "IIT Organising Institute",
+    "year": 2026,
+    "verifiedDate": "2026-08-15",
+    "officialSource": "GATE Information Brochure",
+    "specs": {
+      "photo": {
+        "width": 480,
+        "height": 640,
+        "minWidth": 240,
+        "maxWidth": 480,
+        "minHeight": 320,
+        "maxHeight": 640,
+        "minKB": 20,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "Aspect ratio 3:4 (e.g. 480x640 or 240x320 px). Face must occupy 60-70% of the photo area. File size 20KB to 200KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 560,
+        "height": 160,
+        "minWidth": 280,
+        "maxWidth": 560,
+        "minHeight": 80,
+        "maxHeight": 160,
+        "minKB": 5,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or Dark Blue ink",
+        "background": "White paper",
+        "instructions": "Aspect ratio ~3.5:1 (e.g. 560x160 px). Signature must cover 70-80% of image height. Size 5KB to 200KB."
+      },
+      "document": {
+        "minKB": 20,
+        "maxKB": 500,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Eligibility certificate or Photo ID in PDF format (20KB - 500KB)."
+      }
+    }
+  },
+  {
+    "id": "uppsc-pcs",
+    "name": "UPPSC Combined State / Upper Subordinate (PCS)",
+    "shortName": "UPPSC PCS",
+    "category": "state_psc",
+    "organizer": "Uttar Pradesh Public Service Commission",
+    "year": 2026,
+    "verifiedDate": "2026-03-20",
+    "officialSource": "UPPSC Official Notification",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White or light background",
+        "instructions": "Passport size photograph. 3.5cm x 4.5cm. Size between 20KB and 50KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 10,
+        "maxKB": 20,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Signature image 3.5cm x 1.5cm. Size 10KB to 20KB."
+      }
+    }
+  },
+  {
+    "id": "bpsc-cce",
+    "name": "BPSC Combined Competitive Examination (CCE)",
+    "shortName": "BPSC CCE",
+    "category": "state_psc",
+    "organizer": "Bihar Public Service Commission",
+    "year": 2026,
+    "verifiedDate": "2026-06-05",
+    "officialSource": "BPSC Official Guidelines",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 25,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Light/White background",
+        "instructions": "Color photo against light background. Size 25KB to 50KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 220,
+        "height": 100,
+        "minKB": 15,
+        "maxKB": 25,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or Blue ink",
+        "background": "White paper",
+        "instructions": "Both Hindi and English signatures required as per notification. Size 15KB to 25KB."
+      }
+    }
+  },
+  {
+    "id": "custom-spec",
+    "name": "Custom / Other Exam Specification",
+    "shortName": "Custom Manual Specs",
+    "category": "custom",
+    "organizer": "User-defined",
+    "year": 2026,
+    "verifiedDate": "2026-09-20",
+    "officialSource": "User entered rules",
+    "specs": {
+      "photo": {
+        "width": 300,
+        "height": 400,
+        "minKB": 20,
+        "maxKB": 100,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Any",
+        "instructions": "Configure your custom dimensions and file size bounds.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 200,
+        "height": 100,
+        "minKB": 10,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "Signature dimensions and KB limit adjustable."
+      },
+      "thumb": {
+        "width": 200,
+        "height": 200,
+        "minKB": 10,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue/Black",
+        "background": "White paper",
+        "instructions": "Left/Right thumb impression."
+      },
+      "declaration": {
+        "width": 600,
+        "height": 300,
+        "minKB": 50,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "sampleText": "I hereby declare that the details provided are true and correct.",
+        "instructions": "Handwritten declaration."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 500,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Custom PDF document."
+      }
+    }
+  }
+]

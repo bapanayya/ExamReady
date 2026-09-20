@@ -1,0 +1,26 @@
+{
+  "name": "exam-image-document-toolkit",
+  "version": "1.0.0",
+  "description": "Privacy-first competitive exam image & document preparation toolkit for Web and Android",
+  "main": "web/index.html",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/exams-schema.test.js && node tests/validator.test.js && node tests/compressor.test.js",
+    "serve": "node scripts/serve.js"
+  },
+  "keywords": [
+    "competitive-exams",
+    "image-resizer",
+    "photo-cropper",
+    "signature-resizer",
+    "dop-stamper",
+    "pdf-compressor",
+    "ssc",
+    "ibps",
+    "upsc",
+    "neet",
+    "jee"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,17 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Android build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/
+*.apk
+*.aab
+
+# OS files
+.DS_Store
+Thumbs.db
