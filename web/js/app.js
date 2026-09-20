@@ -18,6 +18,10 @@ class ExamToolkitApp {
     this.currentRotation = 0;
     this.selectedCategory = 'all';
     this.searchQuery = '';
+    this.webcamStream = null;
+
+    // Crop mode: 'fit' (fit entire image & pad white) or 'crop' (frame subregion from page)
+    this.cropMode = 'crop';
 
     // Adjustments & Filters
     this.settings = {
@@ -159,6 +163,27 @@ class ExamToolkitApp {
     this.updateSpecBanner();
     this.toggleToolControls();
 
+    // Toggle PDF view button
+    const viewPdfBtn = document.getElementById('viewPdfBtn');
+    if (viewPdfBtn) {
+      viewPdfBtn.style.display = docType === 'document' ? 'inline-flex' : 'none';
+    }
+
+    // Toggle PDF preview vs Canvas preview
+    const pdfPreview = document.getElementById('pdfDocumentPreview');
+    const cropperMount = document.getElementById('cropperMount');
+    const cropModeBar = document.getElementById('cropModeBar');
+
+    if (docType === 'document') {
+      if (pdfPreview) pdfPreview.style.display = 'block';
+      if (cropperMount) cropperMount.style.display = 'none';
+      if (cropModeBar) cropModeBar.style.display = 'none';
+    } else {
+      if (pdfPreview) pdfPreview.style.display = 'none';
+      if (cropperMount) cropperMount.style.display = 'flex';
+      if (cropModeBar) cropModeBar.style.display = 'flex';
+    }
+
     if (this.cropper && this.sourceImage) {
       const spec = this.getCurrentSpec();
       const targetW = spec.width || 350;
@@ -281,7 +306,10 @@ class ExamToolkitApp {
     const fileInput = document.getElementById('fileInput');
     const cameraInput = document.getElementById('cameraInput');
     const dropzone = document.getElementById('dropzone');
+    const browseFileBtn = document.getElementById('browseFileBtn');
+    const openCameraBtn = document.getElementById('openCameraBtn');
     const downloadBtn = document.getElementById('downloadBtn');
+    const viewPdfBtn = document.getElementById('viewPdfBtn');
     const shareBtn = document.getElementById('shareBtn');
     const rotateLeftBtn = document.getElementById('rotateLeftBtn');
     const rotateRightBtn = document.getElementById('rotateRightBtn');
@@ -292,6 +320,30 @@ class ExamToolkitApp {
     const themeBtn = document.getElementById('themeToggleBtn');
     const searchInput = document.getElementById('examSearchInput');
     const examSelect = document.getElementById('examSelect');
+
+    // Mode Buttons (Fit Entire Image vs Crop Region)
+    const modeFitBtn = document.getElementById('modeFitBtn');
+    const modeCropBtn = document.getElementById('modeCropBtn');
+
+    modeFitBtn?.addEventListener('click', () => {
+      this.cropMode = 'fit';
+      modeFitBtn.className = 'btn btn-primary';
+      modeCropBtn.className = 'btn btn-secondary';
+      if (this.cropper) {
+        this.cropper.setMode('fit');
+        this.processImage();
+      }
+    });
+
+    modeCropBtn?.addEventListener('click', () => {
+      this.cropMode = 'crop';
+      modeCropBtn.className = 'btn btn-primary';
+      modeFitBtn.className = 'btn btn-secondary';
+      if (this.cropper) {
+        this.cropper.setMode('crop');
+        this.processImage();
+      }
+    });
 
     // Search & Selection
     searchInput?.addEventListener('input', (e) => {
@@ -311,9 +363,23 @@ class ExamToolkitApp {
       });
     });
 
-    // Drag and drop
+    // Clean Button triggers (prevent event bubbling to dropzone)
+    browseFileBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput?.click();
+    });
+
+    openCameraBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.openCamera();
+    });
+
+    // Drag and drop zone (clicking outside buttons also triggers fileInput)
     if (dropzone) {
-      dropzone.addEventListener('click', () => fileInput?.click());
+      dropzone.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        fileInput?.click();
+      });
       dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropzone.classList.add('dragover');
@@ -457,6 +523,11 @@ class ExamToolkitApp {
 
     // Download & Share
     downloadBtn?.addEventListener('click', () => this.downloadFile());
+    viewPdfBtn?.addEventListener('click', () => {
+      if (this.processedDataUrl) {
+        window.open(this.processedDataUrl, '_blank');
+      }
+    });
     shareBtn?.addEventListener('click', () => this.shareFile());
 
     // Theme toggle
@@ -464,6 +535,64 @@ class ExamToolkitApp {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
     });
+
+    // Webcam Modal buttons
+    document.getElementById('closeCameraModalBtn')?.addEventListener('click', () => this.closeCameraModal());
+    document.getElementById('snapPhotoBtn')?.addEventListener('click', () => this.snapWebcamPhoto());
+  }
+
+  openCamera() {
+    const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // On mobile devices, native camera input is the most reliable
+      const cameraInput = document.getElementById('cameraInput');
+      cameraInput?.click();
+    } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // On desktop/laptop, open live webcam modal
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('webcamVideo');
+
+      navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } })
+        .then((stream) => {
+          this.webcamStream = stream;
+          if (video) video.srcObject = stream;
+          if (modal) modal.style.display = 'flex';
+        })
+        .catch((err) => {
+          console.log('Webcam access error, falling back to file dialog:', err);
+          document.getElementById('cameraInput')?.click();
+        });
+    } else {
+      document.getElementById('cameraInput')?.click();
+    }
+  }
+
+  closeCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    if (modal) modal.style.display = 'none';
+
+    if (this.webcamStream) {
+      this.webcamStream.getTracks().forEach(track => track.stop());
+      this.webcamStream = null;
+    }
+  }
+
+  snapWebcamPhoto() {
+    const video = document.getElementById('webcamVideo');
+    if (!video || !video.videoWidth) return;
+
+    const snapCanvas = document.createElement('canvas');
+    snapCanvas.width = video.videoWidth;
+    snapCanvas.height = video.videoHeight;
+    const ctx = snapCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+
+    snapCanvas.toBlob((blob) => {
+      this.closeCameraModal();
+      const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
+      this.handleFileUpload(file);
+    }, 'image/jpeg', 0.95);
   }
 
   handleFileUpload(file) {
@@ -491,7 +620,6 @@ class ExamToolkitApp {
           this.cropper = new InteractiveCropper(mount, {
             aspectRatio: targetW / targetH,
             onCropChange: () => {
-              // Debounced processing
               clearTimeout(this._cropDebounce);
               this._cropDebounce = setTimeout(() => this.processImage(), 120);
             }
@@ -499,6 +627,11 @@ class ExamToolkitApp {
         }
 
         this.cropper.setImage(img, targetW, targetH, 0);
+        this.cropper.setMode(this.cropMode);
+
+        // Update PDF thumbnail if in document mode
+        const pdfThumb = document.getElementById('pdfDocThumb');
+        if (pdfThumb) pdfThumb.src = img.src;
 
         // Show editor, comparison stats, and validation
         document.getElementById('editorCard').style.display = 'block';
@@ -520,22 +653,24 @@ class ExamToolkitApp {
   }
 
   async processImage() {
-    if (!this.sourceImage || !this.cropper) return;
+    if (!this.sourceImage) return;
 
     const spec = this.getCurrentSpec();
     if (!spec) return;
 
-    // Handle PDF document mode
+    // Handle Certificate to PDF mode
     if (spec.format === 'application/pdf' || this.currentDocType === 'document') {
       await this.processPdfDocument(spec);
       return;
     }
 
+    if (!this.cropper) return;
+
     // Determine target canvas dimensions prescribed by the exam
     const targetW = spec.width || 350;
     const targetH = spec.height || 450;
 
-    // 1. Extract cropped canvas from InteractiveCropper at EXACT prescribed dimensions!
+    // 1. Extract canvas: handles both Fit Entire Image (Pad White) and Crop Selection!
     let canvas = this.cropper.getCroppedCanvas(targetW, targetH);
 
     // 2. Apply Brightness and Contrast
@@ -560,7 +695,7 @@ class ExamToolkitApp {
       canvas = applyDopStamp(canvas, this.settings.applicantName, this.settings.photoDate);
     }
 
-    // 4. Smart Iterative Compression to hit [minKB, maxKB]
+    // 4. Smart Iterative Compression to hit [minKB, maxKB] (enhances lower sizes into prescribed range)
     const compressRes = await compressCanvasToKB(canvas, {
       minKB: spec.minKB || 10,
       maxKB: spec.maxKB || 50,
@@ -589,14 +724,20 @@ class ExamToolkitApp {
   }
 
   async processPdfDocument(spec) {
+    // Generate 100% valid PDF from uploaded certificate image
     const pdfRes = await createPdfFromImages([{
       blob: this.sourceFile,
-      width: this.sourceImage.width,
-      height: this.sourceImage.height
+      width: this.sourceImage.naturalWidth || 800,
+      height: this.sourceImage.naturalHeight || 1000
     }], { pageSize: 'A4', margin: 20 });
 
     this.processedBlob = pdfRes.blob;
     this.processedDataUrl = URL.createObjectURL(this.processedBlob);
+
+    const pdfThumb = document.getElementById('pdfDocThumb');
+    if (pdfThumb) {
+      pdfThumb.src = this.sourceImage.src;
+    }
 
     const procStats = document.getElementById('procStats');
     if (procStats) {

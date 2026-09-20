@@ -1,7 +1,8 @@
 /**
  * Smart Iterative Image Compressor
- * Uses binary search over compression quality and smart padding to guarantee
- * output file size strictly satisfies minKB and maxKB requirements.
+ * Uses binary search over compression quality and safe JPEG comment segment padding
+ * to guarantee output file size strictly satisfies minKB and maxKB requirements,
+ * enhancing lower file sizes into the safe prescribed range.
  */
 
 export async function compressCanvasToKB(canvas, options = {}) {
@@ -15,7 +16,10 @@ export async function compressCanvasToKB(canvas, options = {}) {
 
   const minBytes = minKB * 1024;
   const maxBytes = maxKB * 1024;
-  const desiredBytes = targetKB ? targetKB * 1024 : (minBytes + maxBytes) / 2;
+  // Aim for a comfortable, safe spot (45% into the range) to avoid teetering on minKB boundary
+  const desiredBytes = targetKB
+    ? targetKB * 1024
+    : Math.round(minBytes + (maxBytes - minBytes) * 0.45);
 
   let lowQuality = 0.05;
   let highQuality = 0.99;
@@ -30,8 +34,8 @@ export async function compressCanvasToKB(canvas, options = {}) {
     });
   };
 
-  // 1. Initial trial at standard high-medium quality
-  let currentQ = 0.82;
+  // 1. Initial trial at high quality to preserve clarity
+  let currentQ = 0.90;
   let currentBlob = await getBlob(currentQ);
   iterations++;
 
@@ -42,13 +46,10 @@ export async function compressCanvasToKB(canvas, options = {}) {
     for (let i = 0; i < maxIterations; i++) {
       iterations++;
       if (currentBlob.size < minBytes) {
-        // Too small: increase quality
         lowQuality = currentQ;
       } else if (currentBlob.size > maxBytes) {
-        // Too large: reduce quality
         highQuality = currentQ;
       } else {
-        // Inside bracket!
         bestBlob = currentBlob;
         break;
       }
@@ -69,11 +70,12 @@ export async function compressCanvasToKB(canvas, options = {}) {
     }
   }
 
-  // 3. Special Case: Image is too small even at 0.99 quality (common with signatures/scans on white background)
-  // If bestBlob is below minBytes, we pad the JPEG structure safely with standard APP1 / comment marker
+  // 3. Lower File Size Enhancement:
+  // If bestBlob is below minBytes (common for clean signatures, monochrome scans, or simple graphics)
+  // enhance the file size to land comfortably in the prescribed target range!
   if (bestBlob && bestBlob.size < minBytes && format === 'image/jpeg') {
     const arrayBuffer = await bestBlob.arrayBuffer();
-    const neededPadding = Math.ceil(minBytes - bestBlob.size + 128);
+    const neededPadding = Math.max(512, Math.round(desiredBytes - bestBlob.size));
     const paddedBuffer = addJpegCommentPadding(new Uint8Array(arrayBuffer), neededPadding);
     bestBlob = new Blob([paddedBuffer], { type: format });
   }
@@ -94,62 +96,57 @@ export async function compressCanvasToKB(canvas, options = {}) {
 }
 
 /**
- * Safely inserts a standard JPEG COM (0xFFFE) comment marker with padding
- * to elevate small files into government portal minimum KB requirements
- * without altering pixels or breaking image decoders.
+ * Safely inserts standard JPEG COM (0xFFFE) comment markers with whitespace padding
+ * to elevate small files comfortably into the prescribed range without altering pixels
+ * or breaking portal decoders.
  */
-function addJpegCommentPadding(jpegBytes, padSize) {
-  // Check JPEG SOI marker 0xFFD8
+export function addJpegCommentPadding(jpegBytes, padSize) {
   if (jpegBytes[0] !== 0xFF || jpegBytes[1] !== 0xD8) {
     return jpegBytes;
   }
 
-  const commentHeader = [0xFF, 0xFE];
-  const maxSegmentPayload = 65533; // 64KB max per segment
-  const actualPad = Math.min(padSize, maxSegmentPayload);
-  const lengthBytes = [((actualPad + 2) >> 8) & 0xFF, (actualPad + 2) & 0xFF];
+  let remainingPad = padSize;
+  let currentBytes = jpegBytes;
 
-  const paddingPayload = new Uint8Array(actualPad);
-  paddingPayload.fill(0x20); // space characters
+  while (remainingPad > 0) {
+    const chunk = Math.min(remainingPad, 65530);
+    const segmentLength = chunk + 2;
+    const header = [0xFF, 0xFE, (segmentLength >> 8) & 0xFF, segmentLength & 0xFF];
+    const payload = new Uint8Array(chunk);
+    payload.fill(0x20); // space padding
 
-  const totalLength = jpegBytes.length + 4 + actualPad;
-  const output = new Uint8Array(totalLength);
+    const newBytes = new Uint8Array(currentBytes.length + 4 + chunk);
+    newBytes.set(currentBytes.subarray(0, 2), 0); // SOI marker
+    newBytes.set(header, 2);
+    newBytes.set(payload, 6);
+    newBytes.set(currentBytes.subarray(2), 6 + chunk);
 
-  // Copy SOI
-  output.set(jpegBytes.subarray(0, 2), 0);
+    currentBytes = newBytes;
+    remainingPad -= chunk;
+  }
 
-  // Insert COM marker + length + comment
-  output.set(commentHeader, 2);
-  output.set(lengthBytes, 4);
-  output.set(paddingPayload, 6);
-
-  // Copy remainder of original JPEG
-  output.set(jpegBytes.subarray(2), 6 + actualPad);
-
-  return output;
+  return currentBytes;
 }
 
 /**
  * Pure mathematical binary search simulator for testing environment without DOM canvas.
- * Accurately models pixel area resizing followed by JPEG quality compression.
+ * Accurately models pixel area resizing followed by JPEG quality compression and padding.
  */
 export function simulateCompressionConvergence(sourceBytes, minKB, maxKB, targetAreaRatio = 0.1) {
   const minBytes = minKB * 1024;
   const maxBytes = maxKB * 1024;
+  const desiredBytes = Math.round(minBytes + (maxBytes - minBytes) * 0.45);
 
-  // After resizing high-res camera photo to exam dimensions (e.g. 200x230 or 350x450),
-  // the base pixel buffer is scaled by targetAreaRatio
   const baseResizedBytes = Math.round(sourceBytes * targetAreaRatio);
 
   let lowQ = 0.05;
   let highQ = 0.99;
-  let q = 0.82;
+  let q = 0.85;
   let iterations = 0;
   let currentBytes = 0;
 
   while (iterations < 10) {
     iterations++;
-    // JPEG file size formula: base size * quality factor curve
     currentBytes = Math.round(baseResizedBytes * (0.15 + 0.85 * Math.pow(q, 1.8)));
 
     if (currentBytes >= minBytes && currentBytes <= maxBytes) {
@@ -161,6 +158,12 @@ export function simulateCompressionConvergence(sourceBytes, minKB, maxKB, target
       lowQ = q;
     }
     q = (lowQ + highQ) / 2;
+  }
+
+  // If still below minBytes, simulate padding enhancement
+  if (currentBytes < minBytes) {
+    currentBytes = desiredBytes;
+    return { success: true, iterations, finalBytes: currentBytes, finalKB: (currentBytes / 1024).toFixed(2), q: 0.99, padded: true };
   }
 
   return {

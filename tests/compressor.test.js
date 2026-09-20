@@ -1,6 +1,6 @@
-import { simulateCompressionConvergence } from '../core/compressor.js';
+import { simulateCompressionConvergence, addJpegCommentPadding } from '../core/compressor.js';
 
-console.log('Testing Compressor Binary Search Convergence...');
+console.log('Testing Compressor Binary Search Convergence & Lower-Size Enhancement...');
 
 let failed = 0;
 
@@ -25,9 +25,21 @@ assert(res2.success, `Signature image converges into 10-20 KB range (result: ${r
 const res3 = simulateCompressionConvergence(3000 * 1024, 100, 300, 0.12);
 assert(res3.success, `Document image converges into 100-300 KB range (result: ${res3.finalKB} KB in ${res3.iterations} iters, q=${res3.q.toFixed(2)})`);
 
+// Scenario 4: Lower File Size Enhancement (tiny signature of 5 KB needed in 20-50 KB range)
+const res4 = simulateCompressionConvergence(50 * 1024, 20, 50, 0.05);
+assert(res4.success && parseFloat(res4.finalKB) >= 20 && parseFloat(res4.finalKB) <= 50,
+  `Tiny image (low KB) is enhanced into 20-50 KB range (result: ${res4.finalKB} KB, padded: ${res4.padded})`);
+
+// Scenario 5: JPEG Comment Padding Binary Validity
+const fakeJpeg = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x04, 0xAA, 0xBB, 0xFF, 0xD9]);
+const padded = addJpegCommentPadding(fakeJpeg, 5000);
+assert(padded[0] === 0xFF && padded[1] === 0xD8, 'Padded JPEG preserves SOI 0xFFD8');
+assert(padded[2] === 0xFF && padded[3] === 0xFE, 'Padded JPEG contains COM 0xFFFE marker');
+assert(padded.length >= fakeJpeg.length + 5000, `Padded JPEG increased size to ${padded.length} bytes`);
+
 if (failed > 0) {
   console.error(`\n❌ ${failed} test(s) failed in compressor.test.js`);
   process.exit(1);
 } else {
-  console.log('\n✅ All Compressor Simulation Tests Passed Successfully!');
+  console.log('\n✅ All Compressor Simulation & Enhancement Tests Passed Successfully!');
 }

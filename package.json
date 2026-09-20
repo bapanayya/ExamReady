@@ -5,7 +5,7 @@
   "main": "web/index.html",
   "type": "module",
   "scripts": {
-    "test": "node tests/exams-schema.test.js && node tests/validator.test.js && node tests/compressor.test.js",
+    "test": "node tests/exams-schema.test.js && node tests/validator.test.js && node tests/compressor.test.js && node tests/pdf-builder.test.js",
     "serve": "node scripts/serve.js"
   },
   "keywords": [

@@ -112,17 +112,17 @@
           <span class="upload-title">Click to browse or drop file here</span>
           <span class="upload-hint">Supports JPG, PNG, WEBP & HEIC (iPhone photos) from phone camera or gallery</span>
           <div class="btn-row">
-            <button class="btn btn-primary" type="button">
+            <button class="btn btn-primary" type="button" id="browseFileBtn">
               📁 Choose File
             </button>
-            <label class="btn btn-secondary" style="cursor: pointer;">
+            <button class="btn btn-secondary" type="button" id="openCameraBtn">
               📷 Take Photo
-              <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
-            </label>
+            </button>
           </div>
         </div>
       </div>
       <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none;">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
     </section>
 
     <!-- Step 3: Interactive Crop & Adjust Studio -->
@@ -142,6 +142,16 @@
         </div>
       </div>
 
+      <!-- Crop Mode Selector: Already Cropped vs Full Page Scan -->
+      <div class="crop-mode-bar" id="cropModeBar" style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+        <button id="modeFitBtn" class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+          🖼️ Fit Entire Image (Pad White)
+        </button>
+        <button id="modeCropBtn" class="btn btn-primary" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+          ✂️ Crop Region from Page
+        </button>
+      </div>
+
       <!-- Before vs After Comparison Card -->
       <div class="comparison-card">
         <div class="comparison-box">
@@ -159,14 +169,19 @@
         <div>
           <div class="preview-wrapper">
             <div id="cropperMount"></div>
+            <!-- Document PDF Preview (Used when docType === 'document') -->
+            <div id="pdfDocumentPreview" style="display:none; text-align:center; color:#fff;">
+              <img id="pdfDocThumb" style="max-width:100%; max-height:280px; border-radius:6px; box-shadow:0 4px 8px rgba(0,0,0,0.3); background:#fff;" alt="Document Page">
+              <p style="margin-top:0.5rem; font-size:0.8rem; color:#94a3b8;">Full document fitted onto standard A4 layout</p>
+            </div>
           </div>
           <div class="cropper-toolbar">
-            <div style="display:flex; gap:0.4rem;">
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
               <button id="faceGuideToggleBtn" class="btn btn-secondary" title="Toggle 75-80% Face Area Guide" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
                 👤 Face Guide
               </button>
               <button id="resetCropBtn" class="btn btn-secondary" title="Reset Crop Selection to Full Image" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
-                ↺ Reset Crop
+                ↺ Reset Selection
               </button>
             </div>
             <button id="applyCropBtn" class="btn btn-primary" style="font-size:0.85rem; padding:0.5rem 1.2rem; font-weight:700;">
@@ -271,9 +286,9 @@
 
           <!-- PDF Document Tool -->
           <div class="tool-group" id="pdfToolGroup" style="display:none;">
-            <span class="tool-title">📄 PDF Conversion Settings</span>
+            <span class="tool-title">📄 Certificate to PDF Settings</span>
             <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
-              Fits image cleanly onto standard A4 document layout with compression under the official size limit.
+              Embeds the entire document cleanly onto standard A4 layout. No forced cropping is applied.
             </p>
           </div>
 
@@ -324,6 +339,9 @@
         <button id="downloadBtn" class="btn btn-success">
           📥 Download Prepared File
         </button>
+        <button id="viewPdfBtn" class="btn btn-secondary" style="display:none;">
+          👁️ Preview PDF
+        </button>
         <button id="shareBtn" class="btn btn-secondary">
           🔗 Share / Send to Phone
         </button>
@@ -334,6 +352,18 @@
     </section>
 
   </main>
+
+  <!-- Live Camera Modal (for desktop webcams & instant photo snap) -->
+  <div id="cameraModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--bg-card); border-radius:12px; padding:1.25rem; max-width:500px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
+      <h3 style="margin-bottom:0.75rem; font-size:1.1rem;">📷 Live Camera Capture</h3>
+      <video id="webcamVideo" autoplay playsinline style="width:100%; border-radius:8px; background:#000; max-height:360px; object-fit:cover;"></video>
+      <div style="display:flex; justify-content:center; gap:0.75rem; margin-top:1rem;">
+        <button id="closeCameraModalBtn" class="btn btn-secondary">Cancel</button>
+        <button id="snapPhotoBtn" class="btn btn-primary" style="font-weight:bold;">📸 Capture Photo</button>
+      </div>
+    </div>
+  </div>
 
   <!-- App Footer -->
   <footer class="app-footer">

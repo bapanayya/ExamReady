@@ -1,7 +1,9 @@
 /**
  * Interactive Image Cropper
- * Mobile-touch and mouse enabled cropper with aspect-ratio locking,
- * corner drag handles, rule-of-thirds grid, and face guide overlay.
+ * Mobile-touch and mouse enabled cropper with:
+ * 1. "Fit Entire Image (Pad White)" for already cropped photos/signatures
+ * 2. "Crop Selection" for extracting photos/signatures from full pages
+ * 3. Aspect-ratio locking, corner drag handles, rule-of-thirds grid, and face guide overlay.
  */
 
 export class InteractiveCropper {
@@ -12,6 +14,7 @@ export class InteractiveCropper {
 
     this.sourceImage = null;
     this.rotation = 0; // 0, 90, 180, 270
+    this.mode = 'crop'; // 'crop' or 'fit'
 
     // Source image dimensions (accounting for rotation)
     this.imgWidth = 0;
@@ -69,7 +72,6 @@ export class InteractiveCropper {
     this.rotation = rotation;
     this.aspectRatio = targetW / targetH;
 
-    // Determine rotated source dimensions
     const isPerp = Math.abs(this.rotation % 180) === 90;
     this.imgWidth = isPerp ? image.naturalHeight : image.naturalWidth;
     this.imgHeight = isPerp ? image.naturalWidth : image.naturalHeight;
@@ -79,10 +81,28 @@ export class InteractiveCropper {
     this.renderCropBox();
   }
 
+  setMode(mode) {
+    this.mode = mode; // 'crop' or 'fit'
+    if (this.mode === 'fit') {
+      // In fit mode, the selection represents the whole image
+      this.crop = { x: 0, y: 0, width: this.imgWidth, height: this.imgHeight };
+      if (this.box) {
+        this.box.style.display = 'none'; // hide crop box handles
+      }
+    } else {
+      this.resetCropToAspectRatio();
+      this.renderCropBox();
+    }
+    this.notifyCropChange();
+  }
+
   setAspectRatio(targetW, targetH) {
     this.aspectRatio = targetW / targetH;
-    this.resetCropToAspectRatio();
-    this.renderCropBox();
+    if (this.mode === 'crop') {
+      this.resetCropToAspectRatio();
+      this.renderCropBox();
+    }
+    this.notifyCropChange();
   }
 
   setRotation(deg) {
@@ -92,14 +112,18 @@ export class InteractiveCropper {
     this.imgHeight = isPerp ? this.sourceImage.naturalWidth : this.sourceImage.naturalHeight;
 
     this.renderBaseCanvas();
-    this.resetCropToAspectRatio();
-    this.renderCropBox();
+    if (this.mode === 'fit') {
+      this.crop = { x: 0, y: 0, width: this.imgWidth, height: this.imgHeight };
+    } else {
+      this.resetCropToAspectRatio();
+      this.renderCropBox();
+    }
   }
 
   setFaceGuideVisible(visible) {
     this.showFaceGuide = visible;
     if (this.faceGuide) {
-      this.faceGuide.style.display = visible ? 'block' : 'none';
+      this.faceGuide.style.display = (visible && this.mode === 'crop') ? 'block' : 'none';
     }
   }
 
@@ -132,7 +156,6 @@ export class InteractiveCropper {
   resetCropToAspectRatio() {
     if (!this.imgWidth || !this.imgHeight) return;
 
-    // Calculate maximum rectangle fitting within imgWidth x imgHeight with this.aspectRatio
     let cropW = this.imgWidth;
     let cropH = cropW / this.aspectRatio;
 
@@ -141,9 +164,9 @@ export class InteractiveCropper {
       cropW = cropH * this.aspectRatio;
     }
 
-    // Shrink slightly (e.g. 95%) for comfortable margin
-    cropW = Math.round(cropW * 0.95);
-    cropH = Math.round(cropH * 0.95);
+    // Shrink slightly for comfortable margin
+    cropW = Math.round(cropW * 0.96);
+    cropH = Math.round(cropH * 0.96);
 
     const cropX = Math.round((this.imgWidth - cropW) / 2);
     const cropY = Math.round((this.imgHeight - cropH) / 2);
@@ -153,7 +176,10 @@ export class InteractiveCropper {
   }
 
   renderCropBox() {
-    if (!this.box || !this.crop.width) return;
+    if (!this.box || !this.crop.width || this.mode === 'fit') {
+      if (this.box && this.mode === 'fit') this.box.style.display = 'none';
+      return;
+    }
     this.updateScale();
 
     const dispX = Math.round(this.crop.x * this.scale);
@@ -167,7 +193,7 @@ export class InteractiveCropper {
     this.box.style.width = `${dispW}px`;
     this.box.style.height = `${dispH}px`;
 
-    // Render dark translucent backdrop outside crop box using box-shadow
+    // Render dark translucent backdrop outside crop box
     this.box.style.boxShadow = `0 0 0 9999px rgba(0, 0, 0, 0.55)`;
   }
 
@@ -193,7 +219,7 @@ export class InteractiveCropper {
     });
 
     const handlePointerMove = (e) => {
-      if (!this.isDragging) return;
+      if (!this.isDragging || this.mode === 'fit') return;
       e.preventDefault();
 
       const dx = (e.clientX - this.dragStart.x) / this.scale;
@@ -210,7 +236,6 @@ export class InteractiveCropper {
         this.crop.x = Math.round(newX);
         this.crop.y = Math.round(newY);
       } else {
-        // Resizing via handles
         this.handleResize(dx, dy, this.dragMode);
       }
 
@@ -336,8 +361,9 @@ export class InteractiveCropper {
   }
 
   /**
-   * Generates a rendered canvas cropped from the source image
-   * at exact specified targetWidth and targetHeight.
+   * Generates a rendered canvas cropped or fitted to targetWidth and targetHeight.
+   * In 'fit' mode: fits whole image into target canvas with clean white margins (zero cut-off).
+   * In 'crop' mode: extracts selected region and scales to target canvas.
    */
   getCroppedCanvas(targetWidth, targetHeight, options = {}) {
     const outCanvas = document.createElement('canvas');
@@ -345,24 +371,36 @@ export class InteractiveCropper {
     outCanvas.height = targetHeight;
     const ctx = outCanvas.getContext('2d');
 
+    // Fill clean white background
     ctx.fillStyle = options.backgroundColor || '#FFFFFF';
     ctx.fillRect(0, 0, targetWidth, targetHeight);
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    // Source is the rendered oriented canvas
-    ctx.drawImage(
-      this.canvas,
-      this.crop.x,
-      this.crop.y,
-      this.crop.width,
-      this.crop.height,
-      0,
-      0,
-      targetWidth,
-      targetHeight
-    );
+    if (this.mode === 'fit') {
+      // Case A: Fit entire image inside target dimensions with white margins (letterbox / pillarbox)
+      const scale = Math.min(targetWidth / this.imgWidth, targetHeight / this.imgHeight);
+      const drawW = Math.round(this.imgWidth * scale);
+      const drawH = Math.round(this.imgHeight * scale);
+      const drawX = Math.round((targetWidth - drawW) / 2);
+      const drawY = Math.round((targetHeight - drawH) / 2);
+
+      ctx.drawImage(this.canvas, 0, 0, this.imgWidth, this.imgHeight, drawX, drawY, drawW, drawH);
+    } else {
+      // Case B: Extract specific crop region from page/image
+      ctx.drawImage(
+        this.canvas,
+        this.crop.x,
+        this.crop.y,
+        this.crop.width,
+        this.crop.height,
+        0,
+        0,
+        targetWidth,
+        targetHeight
+      );
+    }
 
     return outCanvas;
   }
