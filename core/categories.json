@@ -1,44 +1,56 @@
 [
   {
+    "id": "all",
+    "name": "All Exams",
+    "icon": "globe",
+    "description": "Browse all 100+ supported competitive examinations"
+  },
+  {
+    "id": "central",
+    "name": "Central Govt (UPSC / SSC / GDS)",
+    "icon": "shield",
+    "description": "UPSC CSE/NDA/CDS, SSC CGL/CHSL/MTS/GD, India Post GDS"
+  },
+  {
     "id": "banking",
     "name": "Banking & Insurance",
     "icon": "bank",
-    "description": "IBPS PO/Clerk, SBI PO/Clerk, RBI, NABARD, LIC"
+    "description": "IBPS PO/Clerk/RRB, SBI PO/Clerk, RBI Grade B, NABARD, LIC"
   },
   {
-    "id": "ssc",
-    "name": "SSC (Staff Selection Commission)",
+    "id": "entrance_nta",
+    "name": "Entrance & Eligibility (NEET / JEE / NET)",
+    "icon": "graduation-cap",
+    "description": "NEET UG/PG, JEE Main, CUET, UGC NET, CTET, GATE, CAT"
+  },
+  {
+    "id": "police",
+    "name": "Police & Armed Forces",
     "icon": "award",
-    "description": "SSC CGL, CHSL, MTS, GD Constable, CPO, Stenographer"
+    "description": "UP Police, Delhi Police, Bihar Police, CRPF, CAPF, Agniveer"
   },
   {
-    "id": "civil_services",
-    "name": "Civil Services & Defence (UPSC)",
-    "icon": "shield",
-    "description": "UPSC CSE, NDA, CDS, CAPF, Engineering Services"
+    "id": "state_psc",
+    "name": "State PSCs",
+    "icon": "map-pin",
+    "description": "UPPSC, BPSC, MPSC, TNPSC, WBCS, OPSC, APSC, MPPSC"
+  },
+  {
+    "id": "judiciary",
+    "name": "Judiciary & High Courts",
+    "icon": "book-open",
+    "description": "Delhi Judicial Service, Patna HC, Bombay HC, State Courts"
   },
   {
     "id": "railways",
     "name": "Railways (RRB)",
     "icon": "train",
-    "description": "RRB NTPC, ALP, Group D, JE"
-  },
-  {
-    "id": "entrance_nta",
-    "name": "NTA & National Entrance",
-    "icon": "graduation-cap",
-    "description": "NEET UG, JEE Main, CUET, GATE, CAT, UGC NET"
-  },
-  {
-    "id": "state_psc",
-    "name": "State PSC & Police",
-    "icon": "map-pin",
-    "description": "UPPSC, BPSC, MPSC, TNPSC, WBPSC, State Police"
+    "description": "RRB NTPC, ALP, Group D, Technician, JE"
   },
   {
     "id": "custom",
-    "name": "Custom / Manual Specification",
+    "name": "Custom / Manual Preset",
     "icon": "sliders",
-    "description": "Enter custom dimensions, KB range, and format manually"
+    "description": "Configure custom dimensions, DPI, and KB limits manually"
   }
 ]

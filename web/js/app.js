@@ -1,4 +1,4 @@
-import { cropAndScale, applyDopStamp, cleanSignature, enhanceThumbImpression, rotateCanvas } from '../../core/image-processor.js';
+import { cropAndScale, applyDopStamp, cleanSignature, createStackedSignatures, enhanceThumbImpression, rotateCanvas } from '../../core/image-processor.js';
 import { compressCanvasToKB } from '../../core/compressor.js';
 import { validateFileAgainstSpec } from '../../core/validator.js';
 import { createPdfFromImages } from '../../core/pdf-builder.js';
@@ -14,9 +14,8 @@ class ExamToolkitApp {
     this.processedBlob = null;
     this.processedDataUrl = null;
     this.currentRotation = 0;
-
-    // Multi-page document support
-    this.documentPages = [];
+    this.selectedCategory = 'all';
+    this.searchQuery = '';
 
     // Edit settings
     this.settings = {
@@ -26,7 +25,9 @@ class ExamToolkitApp {
       cleanSigEnabled: true,
       sigThreshold: 175,
       sigInkMode: 'keep_ink',
+      stackSigEnabled: false,
       enhanceThumbEnabled: true,
+      faceGuideVisible: false,
       customWidth: 300,
       customHeight: 400,
       customMinKB: 20,
@@ -38,9 +39,10 @@ class ExamToolkitApp {
   async init() {
     await this.loadData();
     this.registerServiceWorker();
+    this.renderCategoryPills();
     this.bindEvents();
-    this.renderExamSelect();
-    this.selectExam(this.exams[0]?.id || 'ssc-cgl-chsl');
+    this.filterAndRenderExams();
+    this.selectExam('ssc-cgl');
   }
 
   async loadData() {
@@ -66,42 +68,76 @@ class ExamToolkitApp {
     }
   }
 
-  renderExamSelect() {
-    const catSelect = document.getElementById('categorySelect');
-    const examSelect = document.getElementById('examSelect');
-    if (!catSelect || !examSelect) return;
+  renderCategoryPills() {
+    const container = document.getElementById('categoryPills');
+    if (!container) return;
 
-    catSelect.innerHTML = this.categories
-      .map(c => `<option value="${c.id}">${c.name}</option>`)
-      .join('');
+    container.innerHTML = this.categories
+      .map(cat => `
+        <button class="category-pill ${cat.id === this.selectedCategory ? 'active' : ''}" data-cat="${cat.id}">
+          ${cat.name}
+        </button>
+      `).join('');
 
-    this.updateExamDropdown();
-
-    catSelect.addEventListener('change', () => {
-      this.updateExamDropdown();
-      this.selectExam(examSelect.value);
-    });
-
-    examSelect.addEventListener('change', () => {
-      this.selectExam(examSelect.value);
+    container.querySelectorAll('.category-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedCategory = btn.dataset.cat;
+        this.filterAndRenderExams();
+      });
     });
   }
 
-  updateExamDropdown() {
-    const catSelect = document.getElementById('categorySelect');
+  filterAndRenderExams() {
     const examSelect = document.getElementById('examSelect');
-    const selectedCat = catSelect.value;
+    if (!examSelect) return;
 
-    const filtered = this.exams.filter(e => e.category === selectedCat);
+    let filtered = this.exams;
+
+    // Filter by Category
+    if (this.selectedCategory && this.selectedCategory !== 'all') {
+      filtered = filtered.filter(e => e.category === this.selectedCategory);
+    }
+
+    // Filter by Search Query
+    if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        (e.shortName && e.shortName.toLowerCase().includes(q)) ||
+        (e.organizer && e.organizer.toLowerCase().includes(q)) ||
+        (e.category && e.category.toLowerCase().includes(q))
+      );
+    }
+
+    if (filtered.length === 0) {
+      examSelect.innerHTML = '<option value="">No matching exams found</option>';
+      return;
+    }
+
     examSelect.innerHTML = filtered
       .map(e => `<option value="${e.id}">${e.name} (${e.year})</option>`)
       .join('');
+
+    if (this.currentExam && filtered.some(e => e.id === this.currentExam.id)) {
+      examSelect.value = this.currentExam.id;
+    } else {
+      this.selectExam(filtered[0].id);
+    }
   }
 
   selectExam(examId) {
     this.currentExam = this.exams.find(e => e.id === examId) || this.exams[0];
+    const examSelect = document.getElementById('examSelect');
+    if (examSelect && this.currentExam) {
+      examSelect.value = this.currentExam.id;
+    }
+
     this.updateDocTypeTabs();
     this.updateSpecBanner();
+    this.toggleToolControls();
+
     if (this.sourceImage) {
       this.processImage();
     }
@@ -114,6 +150,14 @@ class ExamToolkitApp {
     });
     this.updateSpecBanner();
     this.toggleToolControls();
+
+    // Auto toggle face guide for photo if available
+    const faceOverlay = document.getElementById('faceGuideOverlay');
+    if (faceOverlay && docType !== 'photo') {
+      faceOverlay.style.display = 'none';
+      this.settings.faceGuideVisible = false;
+    }
+
     if (this.sourceImage) {
       this.processImage();
     }
@@ -144,7 +188,7 @@ class ExamToolkitApp {
       photo: '📸 Passport Photo',
       signature: '✍️ Signature',
       thumb: '👆 Thumb Impression',
-      declaration: '📝 Handwritten Declaration',
+      declaration: '📝 Declaration',
       document: '📄 Certificate to PDF'
     };
 
@@ -206,7 +250,7 @@ class ExamToolkitApp {
       ` : ''}
     `;
 
-    // Automatically enable DOP if exam strictly mandates it
+    // Auto-enable DOP if exam strictly mandates it
     if (spec.dopRequired) {
       this.settings.dopEnabled = true;
       const dopToggle = document.getElementById('dopToggle');
@@ -218,13 +262,13 @@ class ExamToolkitApp {
     const dopGroup = document.getElementById('dopToolGroup');
     const sigGroup = document.getElementById('sigToolGroup');
     const thumbGroup = document.getElementById('thumbToolGroup');
-    const customGroup = document.getElementById('customToolGroup');
     const pdfGroup = document.getElementById('pdfToolGroup');
+    const faceBtn = document.getElementById('faceGuideToggleBtn');
 
     if (dopGroup) dopGroup.style.display = this.currentDocType === 'photo' ? 'block' : 'none';
+    if (faceBtn) faceBtn.style.display = this.currentDocType === 'photo' ? 'inline-flex' : 'none';
     if (sigGroup) sigGroup.style.display = this.currentDocType === 'signature' ? 'block' : 'none';
     if (thumbGroup) thumbGroup.style.display = this.currentDocType === 'thumb' ? 'block' : 'none';
-    if (customGroup) customGroup.style.display = this.currentExam?.id === 'custom-spec' ? 'block' : 'none';
     if (pdfGroup) pdfGroup.style.display = this.currentDocType === 'document' ? 'block' : 'none';
   }
 
@@ -235,7 +279,28 @@ class ExamToolkitApp {
     const downloadBtn = document.getElementById('downloadBtn');
     const shareBtn = document.getElementById('shareBtn');
     const rotateBtn = document.getElementById('rotateRightBtn');
+    const faceBtn = document.getElementById('faceGuideToggleBtn');
     const themeBtn = document.getElementById('themeToggleBtn');
+    const searchInput = document.getElementById('examSearchInput');
+    const examSelect = document.getElementById('examSelect');
+
+    // Search & Selection
+    searchInput?.addEventListener('input', (e) => {
+      this.searchQuery = e.target.value.trim();
+      this.filterAndRenderExams();
+    });
+
+    examSelect?.addEventListener('change', (e) => {
+      this.selectExam(e.target.value);
+    });
+
+    // Trending chips
+    document.querySelectorAll('.trending-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const id = chip.dataset.id;
+        this.selectExam(id);
+      });
+    });
 
     // Drag and drop
     if (dropzone) {
@@ -286,10 +351,11 @@ class ExamToolkitApp {
       this.processImage();
     });
 
-    // Signature Clean controls
+    // Signature Clean & Stack controls
     const sigCleanToggle = document.getElementById('sigCleanToggle');
     const sigThresholdSlider = document.getElementById('sigThreshold');
     const sigThresholdVal = document.getElementById('sigThresholdVal');
+    const stackSigToggle = document.getElementById('stackSigToggle');
 
     sigCleanToggle?.addEventListener('change', (e) => {
       this.settings.cleanSigEnabled = e.target.checked;
@@ -302,11 +368,25 @@ class ExamToolkitApp {
       this.processImage();
     });
 
+    stackSigToggle?.addEventListener('change', (e) => {
+      this.settings.stackSigEnabled = e.target.checked;
+      this.processImage();
+    });
+
     // Thumb Impression control
     const thumbToggle = document.getElementById('thumbCleanToggle');
     thumbToggle?.addEventListener('change', (e) => {
       this.settings.enhanceThumbEnabled = e.target.checked;
       this.processImage();
+    });
+
+    // Face Guide Toggle
+    faceBtn?.addEventListener('click', () => {
+      this.settings.faceGuideVisible = !this.settings.faceGuideVisible;
+      const faceOverlay = document.getElementById('faceGuideOverlay');
+      if (faceOverlay) {
+        faceOverlay.style.display = this.settings.faceGuideVisible ? 'flex' : 'none';
+      }
     });
 
     // Rotation
@@ -328,15 +408,31 @@ class ExamToolkitApp {
 
   handleFileUpload(file) {
     this.sourceFile = file;
+
+    // Check for HEIC
+    if (file.name.toLowerCase().endsWith('.heic') || file.type.includes('heic')) {
+      alert('HEIC file detected. Your browser will convert it to standard JPG for exam portal submission.');
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
         this.sourceImage = img;
         this.currentRotation = 0;
+
+        // Show editor, comparison stats, and validation
         document.getElementById('editorCard').style.display = 'block';
         document.getElementById('validationCard').style.display = 'block';
         document.getElementById('actionBar').style.display = 'flex';
+
+        // Update original stats
+        const origKB = (file.size / 1024).toFixed(1);
+        const origStats = document.getElementById('origStats');
+        if (origStats) {
+          origStats.textContent = `${origKB} KB • ${img.naturalWidth} × ${img.naturalHeight} px`;
+        }
+
         this.processImage();
       };
       img.src = event.target.result;
@@ -374,11 +470,16 @@ class ExamToolkitApp {
     }
 
     // 3. Document-type specific filters
-    if (this.currentDocType === 'signature' && this.settings.cleanSigEnabled) {
-      canvas = cleanSignature(canvas, {
-        threshold: this.settings.sigThreshold,
-        inkMode: this.settings.sigInkMode
-      });
+    if (this.currentDocType === 'signature') {
+      if (this.settings.cleanSigEnabled) {
+        canvas = cleanSignature(canvas, {
+          threshold: this.settings.sigThreshold,
+          inkMode: this.settings.sigInkMode
+        });
+      }
+      if (this.settings.stackSigEnabled) {
+        canvas = createStackedSignatures(canvas, 3);
+      }
     } else if (this.currentDocType === 'thumb' && this.settings.enhanceThumbEnabled) {
       canvas = enhanceThumbImpression(canvas);
     } else if (this.currentDocType === 'photo' && this.settings.dopEnabled) {
@@ -401,6 +502,12 @@ class ExamToolkitApp {
       previewImg.src = this.processedDataUrl;
     }
 
+    // Update Processed stats
+    const procStats = document.getElementById('procStats');
+    if (procStats) {
+      procStats.textContent = `${compressRes.sizeKB} KB • ${canvas.width} × ${canvas.height} px • ${spec.formatName || 'JPG'}`;
+    }
+
     // 5. Validation Check
     const validation = validateFileAgainstSpec({
       width: canvas.width,
@@ -414,7 +521,6 @@ class ExamToolkitApp {
   }
 
   async processPdfDocument(spec) {
-    // Generate PDF from uploaded image
     const pdfRes = await createPdfFromImages([{
       blob: this.sourceFile,
       width: this.sourceImage.width,
@@ -426,7 +532,12 @@ class ExamToolkitApp {
 
     const previewImg = document.getElementById('previewImg');
     if (previewImg) {
-      previewImg.src = './assets/icons/icon-512.svg'; // PDF preview placeholder
+      previewImg.src = './assets/icons/icon-512.svg';
+    }
+
+    const procStats = document.getElementById('procStats');
+    if (procStats) {
+      procStats.textContent = `${pdfRes.sizeKB} KB • A4 PDF (${pdfRes.pageCount} Page)`;
     }
 
     const validation = validateFileAgainstSpec({

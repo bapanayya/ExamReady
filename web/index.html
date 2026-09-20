@@ -47,13 +47,36 @@
         <span class="step-num">1</span>
         Select Target Examination
       </h2>
+
+      <!-- Search Input -->
+      <div class="search-box-wrapper">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="examSearchInput" class="search-input" placeholder="Search 100+ exams (e.g. UPSC, SSC, NEET, GDS, Police, IBPS)...">
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-pills" id="categoryPills">
+        <!-- Injected dynamically via app.js -->
+      </div>
+
+      <!-- Trending Quick Chips -->
+      <div class="trending-row">
+        <span class="trending-label">⚡ Popular:</span>
+        <button class="trending-chip" data-id="upsc-cse-civil-services">UPSC CSE</button>
+        <button class="trending-chip" data-id="ssc-cgl">SSC CGL</button>
+        <button class="trending-chip" data-id="india-post-gds">Post Office GDS</button>
+        <button class="trending-chip" data-id="nta-neet-ug">NEET UG</button>
+        <button class="trending-chip" data-id="ibps-po">IBPS PO</button>
+        <button class="trending-chip" data-id="up-police-otr">UP Police</button>
+      </div>
+
+      <!-- Select Dropdown -->
       <div class="select-row">
         <div class="form-group">
-          <label class="form-label" for="categorySelect">Category / Sector</label>
-          <select id="categorySelect"></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="examSelect">Specific Examination</label>
+          <label class="form-label" for="examSelect">Selected Examination</label>
           <select id="examSelect"></select>
         </div>
       </div>
@@ -72,7 +95,7 @@
       </div>
     </section>
 
-    <!-- Step 3: Upload or Snap -->
+    <!-- Step 2: Upload or Snap -->
     <section class="card">
       <h2 class="card-title">
         <span class="step-num">2</span>
@@ -87,7 +110,7 @@
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
           <span class="upload-title">Click to browse or drop file here</span>
-          <span class="upload-hint">Supports JPG, PNG, WEBP from your phone gallery or desktop</span>
+          <span class="upload-hint">Supports JPG, PNG, WEBP & HEIC (iPhone photos) from phone camera or gallery</span>
           <div class="btn-row">
             <button class="btn btn-primary" type="button">
               📁 Choose File
@@ -102,20 +125,40 @@
       <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none;">
     </section>
 
-    <!-- Step 4: Interactive Studio & Fine-Tuning -->
+    <!-- Step 3: Interactive Studio & Fine-Tuning -->
     <section class="card" id="editorCard" style="display:none;">
       <h2 class="card-title">
         <span class="step-num">3</span>
         Fine-Tune & Enhance
       </h2>
 
+      <!-- Before vs After Comparison Card -->
+      <div class="comparison-card">
+        <div class="comparison-box">
+          <span class="title">Original Upload</span>
+          <span class="stat" id="origStats">0 KB • 0 × 0 px</span>
+        </div>
+        <div class="comparison-box">
+          <span class="title">Optimized Output</span>
+          <span class="stat" id="procStats" style="color:var(--primary);">0 KB • 0 × 0 px</span>
+        </div>
+      </div>
+
       <div class="editor-container">
         <!-- Canvas Preview Area -->
         <div class="preview-wrapper">
-          <img id="previewImg" class="preview-canvas" alt="Processed Preview">
+          <div class="canvas-container">
+            <img id="previewImg" class="preview-canvas" alt="Processed Preview">
+            <div id="faceGuideOverlay" class="face-guide-overlay" style="display:none;">
+              <div class="face-guide-oval"></div>
+            </div>
+          </div>
           <div class="toolbar">
             <button id="rotateRightBtn" class="btn btn-secondary" title="Rotate 90 degrees">
               🔄 Rotate 90°
+            </button>
+            <button id="faceGuideToggleBtn" class="btn btn-secondary" title="Show 75-80% Face Area Guide">
+              👤 Face Guide
             </button>
           </div>
         </div>
@@ -159,14 +202,24 @@
               </label>
             </div>
             <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">
-              Converts grayish or shadowy phone photos into clean black/blue ink on pure white background.
+              Converts grayish or shadowy phone photos into clean ink on pure white paper.
             </p>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0.6rem;">
               <label class="form-label" for="sigThreshold">
                 Shadow Removal Strength: <span id="sigThresholdVal">175</span>
               </label>
               <input type="range" id="sigThreshold" min="100" max="230" value="175" style="width:100%;">
             </div>
+            <div class="tool-header" style="border-top:1px solid var(--border-color); padding-top:0.5rem; margin-top:0.4rem;">
+              <span class="tool-title" style="font-size:0.8rem;">
+                📚 Stack 3 Signatures Vertically
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="stackSigToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <span style="font-size:0.7rem; color:var(--text-muted);">Required by specific High Court & Judiciary application notices.</span>
           </div>
 
           <!-- Thumb Impression Tool: Ridge Contrast Booster -->
@@ -189,7 +242,7 @@
           <div class="tool-group" id="pdfToolGroup" style="display:none;">
             <span class="tool-title">📄 PDF Conversion Settings</span>
             <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
-              Fits image cleanly onto standard A4 document layout with compression under the exam size limit.
+              Fits image cleanly onto standard A4 document layout with compression under the official size limit.
             </p>
           </div>
 
@@ -197,7 +250,7 @@
       </div>
     </section>
 
-    <!-- Step 5: Live Validation Report -->
+    <!-- Step 4: Live Validation Report -->
     <section class="card validation-card" id="validationCard" style="display:none;">
       <div class="validation-header">
         <h2 class="card-title" style="margin-bottom:0;">
@@ -224,7 +277,7 @@
       </table>
     </section>
 
-    <!-- Step 6: Download & Action Bar -->
+    <!-- Step 5: Download & Action Bar -->
     <section class="action-bar" id="actionBar" style="display:none;">
       <div class="download-btn-group">
         <button id="downloadBtn" class="btn btn-success">
@@ -235,7 +288,7 @@
         </button>
       </div>
       <p style="font-size:0.75rem; color:var(--text-muted);">
-        File is ready for direct upload on the official exam application portal.
+        Auto-renamed for error-free portal upload. Ready for direct submission.
       </p>
     </section>
 
@@ -244,7 +297,7 @@
   <!-- App Footer -->
   <footer class="app-footer">
     <p><strong>ExamReady</strong> • Privacy-First Competitive Exam Image & Document Toolkit</p>
-    <p>All processing is executed entirely within your browser or mobile device. No data or images are ever transmitted.</p>
+    <p>All processing is executed entirely on your device. No photos or documents are ever uploaded to any server.</p>
   </footer>
 
   <script type="module" src="./js/app.js"></script>

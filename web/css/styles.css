@@ -122,7 +122,7 @@ body {
 
 /* Main Container */
 .container {
-  max-width: 900px;
+  max-width: 920px;
   width: 100%;
   margin: 0 auto;
   padding: 1.25rem 1rem 3rem;
@@ -162,17 +162,111 @@ body {
   font-weight: bold;
 }
 
-/* Exam Select Row */
-.select-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+/* Search Bar & Category Chips */
+.search-box-wrapper {
+  position: relative;
+  margin-bottom: 0.75rem;
 }
 
-@media (max-width: 600px) {
-  .select-row {
-    grid-template-columns: 1fr;
-  }
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background: var(--bg-card);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+/* Category Filter Pills */
+.category-pills {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.4rem;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  scrollbar-width: thin;
+}
+
+.category-pill {
+  white-space: nowrap;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.category-pill.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* Trending Exams Row */
+.trending-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+}
+
+.trending-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.trending-chip {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  border: 1px solid #bfdbfe;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trending-chip:hover {
+  background: #dbeafe;
+}
+
+/* Select Row */
+.select-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 }
 
 .form-group {
@@ -405,6 +499,11 @@ select:focus, input:focus {
   background: #0f172a;
 }
 
+.canvas-container {
+  position: relative;
+  display: inline-block;
+}
+
 .preview-canvas {
   max-width: 100%;
   max-height: 320px;
@@ -414,6 +513,41 @@ select:focus, input:focus {
   background: #fff;
 }
 
+/* Face Guide Overlay */
+.face-guide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.face-guide-oval {
+  width: 60%;
+  height: 72%;
+  border: 2px dashed rgba(37, 99, 235, 0.75);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: relative;
+}
+
+.face-guide-oval::after {
+  content: "75-80% Face Area";
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(37, 99, 235, 0.85);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 /* Toolbar */
 .toolbar {
   display: flex;
@@ -421,6 +555,7 @@ select:focus, input:focus {
   margin-top: 0.6rem;
   width: 100%;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Tool Settings Panel */
@@ -493,6 +628,36 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+/* Comparison Bar (Before vs After) */
+.comparison-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg-main);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+.comparison-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.comparison-box .title {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.comparison-box .stat {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 /* Validation Card */

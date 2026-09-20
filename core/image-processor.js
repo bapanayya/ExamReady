@@ -1,7 +1,8 @@
 /**
  * Image Processor Engine
  * Canvas operations: Cropping, Resizing, DOP (Date of Photo) Stamping,
- * Signature Shadow/Ink Cleanup, and Thumb Impression Enhancement.
+ * Face Coverage Visual Guides, Signature Shadow/Ink Cleanup,
+ * Stacked Signatures, and Thumb Impression Enhancement.
  */
 
 /**
@@ -54,7 +55,7 @@ export function applyDopStamp(sourceCanvas, applicantName, photoDate, options = 
   const bannerHeight = Math.max(36, Math.round(height * 0.18));
   const bannerY = height - bannerHeight;
 
-  // Draw solid white or light banner
+  // Draw solid white banner
   ctx.fillStyle = options.bannerColor || '#FFFFFF';
   ctx.fillRect(0, bannerY, width, bannerHeight);
 
@@ -131,7 +132,7 @@ export function cleanSignature(sourceCanvas, options = {}) {
         data[i + 2] = 0;
       } else {
         // Boost contrast and deepen the ink
-        const factor = 1.3;
+        const factor = 1.35;
         data[i] = Math.max(0, Math.min(255, (r - 128) * factor + 128 - 25));
         data[i + 1] = Math.max(0, Math.min(255, (g - 128) * factor + 128 - 25));
         data[i + 2] = Math.max(0, Math.min(255, (b - 128) * factor + 128 - 25));
@@ -140,6 +141,39 @@ export function cleanSignature(sourceCanvas, options = {}) {
   }
 
   ctx.putImageData(imgData, 0, 0);
+  return outputCanvas;
+}
+
+/**
+ * Creates 3 vertically stacked identical signatures as required by
+ * certain Judiciary and High Court notifications.
+ */
+export function createStackedSignatures(sourceCanvas, count = 3) {
+  const width = sourceCanvas.width;
+  const slotHeight = Math.floor(sourceCanvas.height / count);
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = width;
+  outputCanvas.height = sourceCanvas.height;
+  const ctx = outputCanvas.getContext('2d');
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, width, sourceCanvas.height);
+
+  for (let i = 0; i < count; i++) {
+    const y = i * slotHeight;
+    ctx.drawImage(sourceCanvas, 0, y, width, slotHeight);
+    if (i > 0) {
+      ctx.strokeStyle = '#E5E7EB';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(10, y);
+      ctx.lineTo(width - 10, y);
+      ctx.stroke();
+    }
+  }
+
   return outputCanvas;
 }
 
