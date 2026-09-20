@@ -400,13 +400,13 @@
   },
   {
     "id": "nta-neet-ug",
-    "name": "NEET UG (Medical Entrance)",
+    "name": "NEET UG (Medical Entrance - NTA)",
     "shortName": "NEET UG",
-    "category": "entrance_nta",
+    "category": "nta",
     "organizer": "National Testing Agency (NTA)",
     "year": 2026,
     "verifiedDate": "2026-02-01",
-    "officialSource": "NTA NEET Information Bulletin",
+    "officialSource": "NTA NEET UG Information Bulletin",
     "specs": {
       "photo": {
         "width": 275,
@@ -455,7 +455,7 @@
     "id": "nta-neet-pg",
     "name": "NEET PG (Postgraduate Medical)",
     "shortName": "NEET PG",
-    "category": "entrance_nta",
+    "category": "entrance_other",
     "organizer": "NBEMS",
     "year": 2026,
     "verifiedDate": "2026-03-15",
@@ -488,13 +488,13 @@
   },
   {
     "id": "nta-jee-main",
-    "name": "JEE Main (Engineering Entrance)",
+    "name": "JEE Main (Engineering Entrance - NTA)",
     "shortName": "JEE Main",
-    "category": "entrance_nta",
+    "category": "nta",
     "organizer": "National Testing Agency (NTA)",
     "year": 2026,
     "verifiedDate": "2026-01-10",
-    "officialSource": "NTA JEE Information Bulletin",
+    "officialSource": "NTA JEE Main Information Bulletin",
     "specs": {
       "photo": {
         "width": 275,
@@ -532,7 +532,7 @@
     "id": "ctet-exam",
     "name": "CTET (Central Teacher Eligibility Test)",
     "shortName": "CTET",
-    "category": "entrance_nta",
+    "category": "entrance_other",
     "organizer": "CBSE",
     "year": 2026,
     "verifiedDate": "2026-05-15",
@@ -566,11 +566,11 @@
     "id": "gate-exam",
     "name": "GATE (Graduate Aptitude Test in Engineering)",
     "shortName": "GATE",
-    "category": "entrance_nta",
-    "organizer": "IIT Organising Institute",
+    "category": "iit",
+    "organizer": "Indian Institutes of Technology (IITs) & IISc",
     "year": 2026,
     "verifiedDate": "2026-08-15",
-    "officialSource": "GATE Information Brochure",
+    "officialSource": "GATE Official Information Brochure (IITs)",
     "specs": {
       "photo": {
         "width": 480,
@@ -944,6 +944,538 @@
         "format": "application/pdf",
         "formatName": "PDF",
         "instructions": "SC/ST/OBC/EWS certificate in PDF format (100KB to 500KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-icar-aieea",
+    "name": "ICAR AIEEA (Indian Council of Agricultural Research - NTA)",
+    "shortName": "ICAR AIEEA",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-03-20",
+    "officialSource": "NTA ICAR Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, white background, 80% face view.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB with black ink on white paper."
+      },
+      "thumb": {
+        "width": 350,
+        "height": 250,
+        "minKB": 10,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue ink",
+        "background": "White paper",
+        "instructions": "Candidate Thumb Impression (10KB - 50KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-nchm-jee",
+    "name": "NCHM JEE (Hotel Management Joint Entrance - NTA)",
+    "shortName": "NCHM JEE",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-02-10",
+    "officialSource": "NTA NCHM JEE Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, passport size with white background.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB with black ink on white paper."
+      }
+    }
+  },
+  {
+    "id": "nta-aissee",
+    "name": "AISSEE (All India Sainik Schools Entrance Exam - NTA)",
+    "shortName": "AISSEE",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-01-15",
+    "officialSource": "NTA AISSEE Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, clear frontal face, white background.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB, black ink on white paper."
+      },
+      "thumb": {
+        "width": 350,
+        "height": 250,
+        "minKB": 10,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Blue ink",
+        "background": "White paper",
+        "instructions": "Candidate Left Hand Thumb Impression (LHTI), 10KB to 50KB with blue ink."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Domicile / Birth / Category Certificate in PDF (50KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-gpat",
+    "name": "GPAT (Graduate Pharmacy Aptitude Test - NTA)",
+    "shortName": "GPAT",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-03-10",
+    "officialSource": "NTA GPAT Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, white background, clear face without caps/goggles.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB with black ink on white paper."
+      }
+    }
+  },
+  {
+    "id": "nta-cmat",
+    "name": "CMAT (Common Management Admission Test - NTA)",
+    "shortName": "CMAT",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-02-28",
+    "officialSource": "NTA CMAT Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, passport photo with white background, 80% face coverage.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB, black ink on white paper."
+      }
+    }
+  },
+  {
+    "id": "nta-csir-ugc-net",
+    "name": "CSIR UGC NET (Science JRF & Lectureship - NTA)",
+    "shortName": "CSIR NET",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-05-01",
+    "officialSource": "NTA CSIR NET Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, passport size with clear white background, 80% face view.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB with black ink on white paper."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Qualifying Degree / Category / Result Awaited Certificate in PDF (50KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-ugc-net",
+    "name": "UGC NET (Assistant Professor & JRF - NTA)",
+    "shortName": "UGC NET",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-04-10",
+    "officialSource": "NTA UGC NET Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, 80% face coverage (without mask) with white background, visible ears.",
+        "dopRequired": false,
+        "faceCoverage": "80%"
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB, black ink pen on white paper."
+      }
+    }
+  },
+  {
+    "id": "nta-cuet-pg",
+    "name": "CUET PG (Common University Entrance Test PG - NTA)",
+    "shortName": "CUET PG",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-01-25",
+    "officialSource": "NTA CUET (PG) Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, clear frontal face, 80% face visible, white background.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB, black ink on white paper in running hand."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Category / PwD Certificate in PDF (50KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "nta-cuet-ug",
+    "name": "CUET UG (Common University Entrance Test - NTA)",
+    "shortName": "CUET UG",
+    "category": "nta",
+    "organizer": "National Testing Agency (NTA)",
+    "year": 2026,
+    "verifiedDate": "2026-02-15",
+    "officialSource": "NTA CUET (UG) Information Bulletin (https://www.nta.ac.in)",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 10,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "10KB to 200KB, 80% face coverage (without mask) with white background, ears visible.",
+        "dopRequired": false,
+        "faceCoverage": "80%"
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 4,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "4KB to 30KB, black ink on white paper in running hand (capital letters not permitted)."
+      },
+      "document": {
+        "minKB": 50,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Class 10 Certificate / Category / PwD Certificate in PDF (50KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "appsc-general",
+    "name": "APPSC General Recruitment (AEE / Lecturers / Forest)",
+    "shortName": "APPSC General",
+    "category": "state_psc",
+    "organizer": "Andhra Pradesh Public Service Commission (APPSC)",
+    "year": 2026,
+    "verifiedDate": "2026-03-01",
+    "officialSource": "APPSC Recruitment Notifications",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White background",
+        "instructions": "3.5 cm x 4.5 cm, 20KB - 50KB in JPEG format.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 10,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black ink",
+        "background": "White paper",
+        "instructions": "3.5 cm x 1.5 cm, 10KB - 30KB."
+      },
+      "document": {
+        "minKB": 100,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Degree / Registration Certificates (100KB - 300KB PDF)."
+      }
+    }
+  },
+  {
+    "id": "appsc-group2",
+    "name": "APPSC Group-II Services (Executive & Non-Executive)",
+    "shortName": "APPSC Group 2",
+    "category": "state_psc",
+    "organizer": "Andhra Pradesh Public Service Commission (APPSC)",
+    "year": 2026,
+    "verifiedDate": "2026-03-01",
+    "officialSource": "APPSC Group-II Notification & OTR Guidelines",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "Light/white background",
+        "instructions": "3.5 cm x 4.5 cm (350x450 px), 20KB to 50KB.",
+        "dopRequired": false
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 10,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or dark blue ink",
+        "background": "White paper",
+        "instructions": "3.5 cm x 1.5 cm (approx 350x150 px), 10KB to 30KB."
+      },
+      "document": {
+        "minKB": 100,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Educational / Reservation Certificate in PDF format (100KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "appsc-group1",
+    "name": "APPSC Group-I Services (Deputy Collector / DSP / CTO)",
+    "shortName": "APPSC Group 1",
+    "category": "state_psc",
+    "organizer": "Andhra Pradesh Public Service Commission (APPSC)",
+    "year": 2026,
+    "verifiedDate": "2026-03-01",
+    "officialSource": "APPSC Group-I Notification & Web Portal Guidelines",
+    "specs": {
+      "photo": {
+        "width": 350,
+        "height": 450,
+        "minKB": 20,
+        "maxKB": 50,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White or light background",
+        "instructions": "3.5 cm x 4.5 cm (350x450 px), 20KB to 50KB. Clean front face, visible ears, no dark glasses.",
+        "dopRequired": false,
+        "faceCoverage": "75%"
+      },
+      "signature": {
+        "width": 350,
+        "height": 150,
+        "minKB": 10,
+        "maxKB": 30,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Black or dark blue ink",
+        "background": "White paper",
+        "instructions": "3.5 cm x 1.5 cm (approx 350x150 px), 10KB to 30KB on white paper with black/dark blue ink."
+      },
+      "document": {
+        "minKB": 100,
+        "maxKB": 300,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Degree / Community / PH Certificate in PDF format (100KB to 300KB)."
+      }
+    }
+  },
+  {
+    "id": "iit-jam",
+    "name": "IIT JAM (Joint Admission test for Masters)",
+    "shortName": "IIT JAM",
+    "category": "iit",
+    "organizer": "Indian Institutes of Technology (IITs) & IISc",
+    "year": 2026,
+    "verifiedDate": "2026-08-20",
+    "officialSource": "IIT JAM Official Information Brochure",
+    "specs": {
+      "photo": {
+        "width": 480,
+        "height": 640,
+        "minWidth": 240,
+        "maxWidth": 480,
+        "minHeight": 320,
+        "maxHeight": 640,
+        "minKB": 20,
+        "maxKB": 200,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "background": "White or light background",
+        "instructions": "Aspect ratio 3.5:4.5 (480x640 px), 20KB to 200KB. Face coverage 60%-70% with visible ears.",
+        "dopRequired": false,
+        "faceCoverage": "65%"
+      },
+      "signature": {
+        "width": 560,
+        "height": 160,
+        "minWidth": 280,
+        "maxWidth": 560,
+        "minHeight": 80,
+        "maxHeight": 160,
+        "minKB": 10,
+        "maxKB": 100,
+        "format": "image/jpeg",
+        "formatName": "JPG/JPEG",
+        "inkColor": "Dark blue or black ink",
+        "background": "White paper",
+        "instructions": "Aspect ratio approx 3.5:1 (560x160 px), 10KB to 100KB with dark blue or black ink."
+      },
+      "document": {
+        "minKB": 10,
+        "maxKB": 500,
+        "format": "application/pdf",
+        "formatName": "PDF",
+        "instructions": "Category / PwD / Qualifying Degree Certificate in PDF format (10KB to 500KB)."
       }
     }
   },

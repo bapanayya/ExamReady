@@ -6,6 +6,18 @@
     "description": "Browse all 100+ supported competitive examinations"
   },
   {
+    "id": "nta",
+    "name": "NTA Exams (NEET / JEE / CUET / UGC NET)",
+    "icon": "graduation-cap",
+    "description": "Official entrance & fellowship tests conducted by National Testing Agency (NEET, JEE, CUET, UGC NET, CMAT, GPAT)"
+  },
+  {
+    "id": "iit",
+    "name": "IITs & IISc (GATE / IIT JAM)",
+    "icon": "cpu",
+    "description": "Graduate Aptitude Test in Engineering (GATE) and Joint Admission test for Masters (JAM) conducted by IITs"
+  },
+  {
     "id": "central",
     "name": "Central Govt (UPSC / SSC / GDS)",
     "icon": "shield",
@@ -18,10 +30,10 @@
     "description": "IBPS PO/Clerk/RRB, SBI PO/Clerk, RBI Grade B, NABARD, LIC"
   },
   {
-    "id": "entrance_nta",
-    "name": "Entrance & Eligibility (NEET / JEE / NET)",
-    "icon": "graduation-cap",
-    "description": "NEET UG/PG, JEE Main, CUET, UGC NET, CTET, GATE, CAT"
+    "id": "railways",
+    "name": "Railways (RRB)",
+    "icon": "train",
+    "description": "RRB NTPC, ALP, Group D, Technician, JE"
   },
   {
     "id": "police",
@@ -31,9 +43,9 @@
   },
   {
     "id": "state_psc",
-    "name": "State PSCs",
+    "name": "State PSCs (APPSC / UPPSC / BPSC / MPSC / TNPSC)",
     "icon": "map-pin",
-    "description": "UPPSC, BPSC, MPSC, TNPSC, WBCS, OPSC, APSC, MPPSC"
+    "description": "Andhra Pradesh APPSC, UPPSC, BPSC, MPSC, TNPSC, WBCS, OPSC, APSC, MPPSC"
   },
   {
     "id": "judiciary",
@@ -42,15 +54,15 @@
     "description": "Delhi Judicial Service, Patna HC, Bombay HC, State Courts"
   },
   {
-    "id": "railways",
-    "name": "Railways (RRB)",
-    "icon": "train",
-    "description": "RRB NTPC, ALP, Group D, Technician, JE"
+    "id": "entrance_other",
+    "name": "Other Entrance Exams (CAT / CTET / NEET PG)",
+    "icon": "award",
+    "description": "IIM CAT, CBSE CTET, NBEMS NEET PG entrance and eligibility examinations"
   },
   {
     "id": "custom",
     "name": "Custom / Manual Preset",
     "icon": "sliders",
-    "description": "Configure custom dimensions, DPI, and KB limits manually"
+    "description": "Configure custom dimensions, DPI, aspect ratio, and KB limits manually"
   }
 ]

@@ -18,6 +18,7 @@ class ExamToolkitApp {
     this.currentRotation = 0;
     this.selectedCategory = 'all';
     this.searchQuery = '';
+    this.activeSuggestionIndex = -1;
     this.webcamStream = null;
 
     // Crop mode: 'fit' (fit entire image & pad white) or 'crop' (frame subregion from page)
@@ -97,40 +98,118 @@ class ExamToolkitApp {
     });
   }
 
-  filterAndRenderExams() {
-    const examSelect = document.getElementById('examSelect');
-    if (!examSelect) return;
+  getCategoryName(catId) {
+    const cat = this.categories?.find(c => c.id === catId);
+    return cat ? cat.name : (catId || 'Exam');
+  }
 
-    let filtered = this.exams;
+  escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 
-    if (this.selectedCategory && this.selectedCategory !== 'all') {
-      filtered = filtered.filter(e => e.category === this.selectedCategory);
-    }
+  highlightMatch(text, query) {
+    if (!query || !query.trim()) return this.escapeHtml(text);
+    const escapedQ = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQ})`, 'gi');
+    return this.escapeHtml(text).replace(regex, '<mark>$1</mark>');
+  }
 
-    if (this.searchQuery) {
-      const q = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(e =>
-        e.name.toLowerCase().includes(q) ||
-        (e.shortName && e.shortName.toLowerCase().includes(q)) ||
-        (e.organizer && e.organizer.toLowerCase().includes(q)) ||
-        (e.category && e.category.toLowerCase().includes(q))
-      );
-    }
+  renderSearchSuggestions(query) {
+    const dropdown = document.getElementById('searchDropdown');
+    if (!dropdown) return;
 
-    if (filtered.length === 0) {
-      examSelect.innerHTML = '<option value="">No matching exams found</option>';
+    if (!query || !query.trim()) {
+      dropdown.style.display = 'none';
+      dropdown.innerHTML = '';
+      this.activeSuggestionIndex = -1;
       return;
     }
 
-    examSelect.innerHTML = filtered
-      .map(e => `<option value="${e.id}">${e.name} (${e.year})</option>`)
-      .join('');
+    const q = query.toLowerCase().trim();
+    const matches = this.exams.filter(e => {
+      return e.name.toLowerCase().includes(q) ||
+        (e.shortName && e.shortName.toLowerCase().includes(q)) ||
+        (e.organizer && e.organizer.toLowerCase().includes(q)) ||
+        (e.category && e.category.toLowerCase().includes(q));
+    });
 
-    if (this.currentExam && filtered.some(e => e.id === this.currentExam.id)) {
-      examSelect.value = this.currentExam.id;
-    } else {
-      this.selectExam(filtered[0].id);
+    if (matches.length === 0) {
+      dropdown.innerHTML = `
+        <div class="search-no-results">
+          <p>No exams matching "<strong>${this.escapeHtml(query)}</strong>"</p>
+          <button type="button" class="btn btn-secondary" id="suggestCustomBtn" style="margin-top:0.6rem; font-size:0.8rem; padding:0.4rem 0.85rem;">
+            ⚙️ Open Custom / Manual Preset
+          </button>
+        </div>
+      `;
+      dropdown.style.display = 'block';
+      document.getElementById('suggestCustomBtn')?.addEventListener('click', () => {
+        this.selectExam('custom-spec');
+        dropdown.style.display = 'none';
+      });
+      return;
     }
+
+    const displayMatches = matches.slice(0, 15);
+    let html = `<div class="search-dropdown-header">Found ${matches.length} matching examination${matches.length > 1 ? 's' : ''}</div>`;
+
+    html += displayMatches.map((exam, idx) => {
+      const catName = this.getCategoryName(exam.category);
+      const highlightedTitle = this.highlightMatch(exam.name, q);
+      const photoSpec = exam.specs?.photo;
+      const sigSpec = exam.specs?.signature;
+      let specsText = '';
+      if (photoSpec) specsText += `Photo: ${photoSpec.minKB}-${photoSpec.maxKB}KB`;
+      if (sigSpec) specsText += `${specsText ? ' • ' : ''}Sign: ${sigSpec.minKB}-${sigSpec.maxKB}KB`;
+
+      return `
+        <div class="search-suggestion-item" data-id="${exam.id}" data-index="${idx}">
+          <div class="suggestion-main">
+            <div class="suggestion-title">${highlightedTitle}</div>
+            <div class="suggestion-org">${this.escapeHtml(exam.organizer || 'Official Examination')}</div>
+          </div>
+          <div class="suggestion-meta">
+            <span class="suggestion-cat-badge">${this.escapeHtml(catName)}</span>
+            <span class="suggestion-specs">${specsText}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+    this.activeSuggestionIndex = -1;
+
+    dropdown.querySelectorAll('.search-suggestion-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.id;
+        const exam = this.exams.find(e => e.id === id);
+        if (exam) {
+          const searchInput = document.getElementById('examSearchInput');
+          if (searchInput) searchInput.value = exam.name;
+          const clearBtn = document.getElementById('searchClearBtn');
+          if (clearBtn) clearBtn.style.display = 'flex';
+        }
+        this.selectExam(id);
+        dropdown.style.display = 'none';
+      });
+    });
+  }
+
+  highlightActiveSuggestion(items) {
+    items.forEach((it, idx) => {
+      if (idx === this.activeSuggestionIndex) {
+        it.classList.add('highlighted');
+        it.scrollIntoView({ block: 'nearest' });
+      } else {
+        it.classList.remove('highlighted');
+      }
+    });
   }
 
   selectExam(examId) {
@@ -140,12 +219,51 @@ class ExamToolkitApp {
       examSelect.value = this.currentExam.id;
     }
 
+    // Update Prominent Selected Exam Hero Card
+    const heroTitle = document.getElementById('heroExamTitle');
+    const heroOrg = document.getElementById('heroOrganizer');
+    const heroBadge = document.getElementById('heroCategoryBadge');
+    const heroSource = document.getElementById('heroSource');
+
+    if (heroTitle && this.currentExam) {
+      heroTitle.textContent = this.currentExam.name;
+    }
+    if (heroOrg && this.currentExam) {
+      heroOrg.textContent = this.currentExam.organizer || 'Official Authority';
+    }
+    if (heroBadge && this.currentExam) {
+      heroBadge.textContent = this.getCategoryName(this.currentExam.category);
+    }
+    if (heroSource && this.currentExam) {
+      heroSource.textContent = this.currentExam.officialSource ? this.currentExam.officialSource : 'Official Verified Guidelines';
+    }
+
+    // Toggle custom preset panel
+    const customPanel = document.getElementById('customPresetPanel');
+    if (customPanel) {
+      if (this.currentExam.id === 'custom-spec') {
+        customPanel.style.display = 'block';
+        const wInput = document.getElementById('customWidthInput');
+        const hInput = document.getElementById('customHeightInput');
+        const minKB = document.getElementById('customMinKBInput');
+        const maxKB = document.getElementById('customMaxKBInput');
+        const fmt = document.getElementById('customFormatSelect');
+        if (wInput) wInput.value = this.settings.customWidth;
+        if (hInput) hInput.value = this.settings.customHeight;
+        if (minKB) minKB.value = this.settings.customMinKB;
+        if (maxKB) maxKB.value = this.settings.customMaxKB;
+        if (fmt) fmt.value = this.settings.customFormat;
+      } else {
+        customPanel.style.display = 'none';
+      }
+    }
+
     this.updateDocTypeTabs();
     this.updateSpecBanner();
     this.toggleToolControls();
 
     if (this.sourceImage) {
-      if (this.currentDocType === 'document') {
+      if (this.currentDocType === 'document' || (this.currentExam.id === 'custom-spec' && this.settings.customFormat === 'application/pdf')) {
         this.processPdfDocument(this.getCurrentSpec());
       } else if (this.cropper) {
         const spec = this.getCurrentSpec();
@@ -200,14 +318,19 @@ class ExamToolkitApp {
   getCurrentSpec() {
     if (!this.currentExam || !this.currentExam.specs) return null;
     const spec = this.currentExam.specs[this.currentDocType];
-    if (this.currentExam.id === 'custom-spec' && spec) {
+    if (this.currentExam.id === 'custom-spec') {
+      const isPdf = this.settings.customFormat === 'application/pdf' || this.currentDocType === 'document';
       return {
-        ...spec,
-        width: this.settings.customWidth,
-        height: this.settings.customHeight,
+        ...(spec || {}),
+        width: isPdf ? null : this.settings.customWidth,
+        height: isPdf ? null : this.settings.customHeight,
         minKB: this.settings.customMinKB,
         maxKB: this.settings.customMaxKB,
-        format: this.settings.customFormat
+        format: isPdf ? 'application/pdf' : this.settings.customFormat,
+        formatName: isPdf ? 'PDF' : (this.settings.customFormat === 'image/png' ? 'PNG' : 'JPG/JPEG'),
+        instructions: isPdf
+          ? `Custom PDF Document: ${this.settings.customMinKB} KB to ${this.settings.customMaxKB} KB.`
+          : `Custom manual preset: ${this.settings.customWidth} × ${this.settings.customHeight} px, ${this.settings.customMinKB} KB to ${this.settings.customMaxKB} KB.`
       };
     }
     return spec;
@@ -347,9 +470,65 @@ class ExamToolkitApp {
       }
     });
 
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    const searchDropdown = document.getElementById('searchDropdown');
+
     searchInput?.addEventListener('input', (e) => {
-      this.searchQuery = e.target.value.trim();
+      this.searchQuery = e.target.value;
+      if (searchClearBtn) {
+        searchClearBtn.style.display = this.searchQuery.trim().length > 0 ? 'flex' : 'none';
+      }
+      this.renderSearchSuggestions(this.searchQuery);
       this.filterAndRenderExams();
+    });
+
+    searchInput?.addEventListener('focus', () => {
+      if (searchInput.value.trim().length > 0) {
+        this.renderSearchSuggestions(searchInput.value);
+      }
+    });
+
+    searchInput?.addEventListener('keydown', (e) => {
+      if (!searchDropdown || searchDropdown.style.display === 'none') return;
+      const items = searchDropdown.querySelectorAll('.search-suggestion-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.activeSuggestionIndex = (this.activeSuggestionIndex + 1) % items.length;
+        this.highlightActiveSuggestion(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.activeSuggestionIndex = (this.activeSuggestionIndex - 1 + items.length) % items.length;
+        this.highlightActiveSuggestion(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.activeSuggestionIndex >= 0 && items[this.activeSuggestionIndex]) {
+          items[this.activeSuggestionIndex].click();
+        } else if (items[0]) {
+          items[0].click();
+        }
+      } else if (e.key === 'Escape') {
+        searchDropdown.style.display = 'none';
+      }
+    });
+
+    searchClearBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      if (searchClearBtn) searchClearBtn.style.display = 'none';
+      if (searchDropdown) searchDropdown.style.display = 'none';
+      this.searchQuery = '';
+      this.filterAndRenderExams();
+    });
+
+    // Close search suggestions on clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-box-wrapper')) {
+        if (searchDropdown) searchDropdown.style.display = 'none';
+      }
     });
 
     examSelect?.addEventListener('change', (e) => {
@@ -360,6 +539,88 @@ class ExamToolkitApp {
       chip.addEventListener('click', () => {
         const id = chip.dataset.id;
         this.selectExam(id);
+      });
+    });
+
+    // Custom Preset Controls
+    const customWidthInput = document.getElementById('customWidthInput');
+    const customHeightInput = document.getElementById('customHeightInput');
+    const customRatioSelect = document.getElementById('customRatioSelect');
+    const customMinKBInput = document.getElementById('customMinKBInput');
+    const customMaxKBInput = document.getElementById('customMaxKBInput');
+    const customFormatSelect = document.getElementById('customFormatSelect');
+
+    const updateCustomSpecs = () => {
+      this.settings.customWidth = parseInt(customWidthInput?.value, 10) || 350;
+      this.settings.customHeight = parseInt(customHeightInput?.value, 10) || 450;
+      this.settings.customMinKB = parseInt(customMinKBInput?.value, 10) || 10;
+      this.settings.customMaxKB = parseInt(customMaxKBInput?.value, 10) || 50;
+      this.settings.customFormat = customFormatSelect?.value || 'image/jpeg';
+
+      this.updateSpecBanner();
+
+      if (this.sourceImage) {
+        if (this.currentDocType === 'document' || this.settings.customFormat === 'application/pdf') {
+          this.processPdfDocument(this.getCurrentSpec());
+        } else if (this.cropper) {
+          this.cropper.setAspectRatio(this.settings.customWidth, this.settings.customHeight);
+          this.processImage();
+        }
+      }
+    };
+
+    customWidthInput?.addEventListener('input', updateCustomSpecs);
+    customHeightInput?.addEventListener('input', updateCustomSpecs);
+    customMinKBInput?.addEventListener('input', updateCustomSpecs);
+    customMaxKBInput?.addEventListener('input', updateCustomSpecs);
+    customFormatSelect?.addEventListener('change', updateCustomSpecs);
+
+    customRatioSelect?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      const w = parseInt(customWidthInput?.value, 10) || 350;
+      let h = parseInt(customHeightInput?.value, 10) || 450;
+
+      if (val === '1:1') {
+        h = w;
+      } else if (val === '3.5:4.5') {
+        h = Math.round(w * 4.5 / 3.5);
+      } else if (val === '2:1') {
+        h = Math.round(w / 2);
+      } else if (val === '7:3') {
+        h = Math.round(w * 3 / 7);
+      } else if (val === '3.5:1') {
+        h = Math.round(w / 3.5);
+      } else if (val === '4:3') {
+        h = Math.round(w * 3 / 4);
+      } else if (val === '16:9') {
+        h = Math.round(w * 9 / 16);
+      }
+
+      if (customHeightInput) customHeightInput.value = h;
+      updateCustomSpecs();
+    });
+
+    document.querySelectorAll('.quick-dim-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const w = parseInt(chip.dataset.w, 10);
+        const h = parseInt(chip.dataset.h, 10);
+        if (customWidthInput) customWidthInput.value = w;
+        if (customHeightInput) customHeightInput.value = h;
+        document.querySelectorAll('.quick-dim-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        updateCustomSpecs();
+      });
+    });
+
+    document.querySelectorAll('.quick-kb-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const min = parseInt(chip.dataset.min, 10);
+        const max = parseInt(chip.dataset.max, 10);
+        if (customMinKBInput) customMinKBInput.value = min;
+        if (customMaxKBInput) customMaxKBInput.value = max;
+        document.querySelectorAll('.quick-kb-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        updateCustomSpecs();
       });
     });
 
