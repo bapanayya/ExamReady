@@ -1,8 +1,8 @@
 /**
  * Smart Iterative Image Compressor
- * Uses binary search over compression quality and safe JPEG comment segment padding
- * to guarantee output file size strictly satisfies minKB and maxKB requirements,
- * enhancing lower file sizes into the safe prescribed range.
+ * Uses binary search over compression quality, multi-pass canvas downscaling,
+ * and safe JPEG comment segment padding to guarantee output file size strictly satisfies
+ * minKB and maxKB requirements, reducing oversized files and enhancing lower file sizes.
  */
 
 export async function compressCanvasToKB(canvas, options = {}) {
@@ -21,28 +21,29 @@ export async function compressCanvasToKB(canvas, options = {}) {
     ? targetKB * 1024
     : Math.round(minBytes + (maxBytes - minBytes) * 0.45);
 
-  let lowQuality = 0.05;
-  let highQuality = 0.99;
+  let currentCanvas = canvas;
   let bestBlob = null;
   let bestDiff = Infinity;
   let iterations = 0;
+  let currentQ = 0.85;
 
   // Helper to convert canvas to blob with given quality
-  const getBlob = (q) => {
+  const getBlob = (c, q) => {
     return new Promise((resolve) => {
-      canvas.toBlob((b) => resolve(b), format, q);
+      c.toBlob((b) => resolve(b), format, q);
     });
   };
 
-  // 1. Initial trial at high quality to preserve clarity
-  let currentQ = 0.90;
-  let currentBlob = await getBlob(currentQ);
+  // Step 1: Binary search over JPEG quality factor
+  let lowQuality = 0.05;
+  let highQuality = 0.99;
+  currentQ = 0.85;
+  let currentBlob = await getBlob(currentCanvas, currentQ);
   iterations++;
 
   if (currentBlob.size >= minBytes && currentBlob.size <= maxBytes) {
     bestBlob = currentBlob;
   } else {
-    // 2. Binary search to hit the target window
     for (let i = 0; i < maxIterations; i++) {
       iterations++;
       if (currentBlob.size < minBytes) {
@@ -55,7 +56,7 @@ export async function compressCanvasToKB(canvas, options = {}) {
       }
 
       currentQ = (lowQuality + highQuality) / 2;
-      currentBlob = await getBlob(currentQ);
+      currentBlob = await getBlob(currentCanvas, currentQ);
 
       const diff = Math.abs(currentBlob.size - desiredBytes);
       if (currentBlob.size >= minBytes && currentBlob.size <= maxBytes) {
@@ -70,9 +71,32 @@ export async function compressCanvasToKB(canvas, options = {}) {
     }
   }
 
-  // 3. Lower File Size Enhancement:
-  // If bestBlob is below minBytes (common for clean signatures, monochrome scans, or simple graphics)
-  // enhance the file size to land comfortably in the prescribed target range!
+  // Step 2: Oversized File Reduction (if even lowest quality 0.05 exceeds maxBytes)
+  // Downscale canvas dimensions proportionally until size falls under maxBytes
+  let downscaleTries = 0;
+  while (bestBlob && bestBlob.size > maxBytes && downscaleTries < 4) {
+    downscaleTries++;
+    iterations++;
+    const scaled = document.createElement('canvas');
+    scaled.width = Math.max(100, Math.round(currentCanvas.width * 0.75));
+    scaled.height = Math.max(100, Math.round(currentCanvas.height * 0.75));
+    const sCtx = scaled.getContext('2d');
+    sCtx.imageSmoothingEnabled = true;
+    sCtx.imageSmoothingQuality = 'high';
+    sCtx.drawImage(currentCanvas, 0, 0, scaled.width, scaled.height);
+    currentCanvas = scaled;
+
+    // Test at medium quality on downscaled canvas
+    currentQ = 0.70;
+    currentBlob = await getBlob(currentCanvas, currentQ);
+    if (currentBlob.size <= maxBytes) {
+      bestBlob = currentBlob;
+      break;
+    }
+  }
+
+  // Step 3: Lower File Size Enhancement (if file is below minBytes)
+  // Safely insert standard JPEG comment padding to reach desiredBytes
   if (bestBlob && bestBlob.size < minBytes && format === 'image/jpeg') {
     const arrayBuffer = await bestBlob.arrayBuffer();
     const neededPadding = Math.max(512, Math.round(desiredBytes - bestBlob.size));
@@ -137,7 +161,7 @@ export function simulateCompressionConvergence(sourceBytes, minKB, maxKB, target
   const maxBytes = maxKB * 1024;
   const desiredBytes = Math.round(minBytes + (maxBytes - minBytes) * 0.45);
 
-  const baseResizedBytes = Math.round(sourceBytes * targetAreaRatio);
+  let baseResizedBytes = Math.round(sourceBytes * targetAreaRatio);
 
   let lowQ = 0.05;
   let highQ = 0.99;
@@ -160,7 +184,15 @@ export function simulateCompressionConvergence(sourceBytes, minKB, maxKB, target
     q = (lowQ + highQ) / 2;
   }
 
-  // If still below minBytes, simulate padding enhancement
+  // If still above maxBytes, simulate downscaling
+  if (currentBytes > maxBytes) {
+    currentBytes = Math.round(currentBytes * 0.6);
+    if (currentBytes <= maxBytes) {
+      return { success: true, iterations, finalBytes: currentBytes, finalKB: (currentBytes / 1024).toFixed(2), q, downscaled: true };
+    }
+  }
+
+  // If below minBytes, simulate padding enhancement
   if (currentBytes < minBytes) {
     currentBytes = desiredBytes;
     return { success: true, iterations, finalBytes: currentBytes, finalKB: (currentBytes / 1024).toFixed(2), q: 0.99, padded: true };

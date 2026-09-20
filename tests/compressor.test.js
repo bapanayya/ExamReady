@@ -37,6 +37,11 @@ assert(padded[0] === 0xFF && padded[1] === 0xD8, 'Padded JPEG preserves SOI 0xFF
 assert(padded[2] === 0xFF && padded[3] === 0xFE, 'Padded JPEG contains COM 0xFFFE marker');
 assert(padded.length >= fakeJpeg.length + 5000, `Padded JPEG increased size to ${padded.length} bytes`);
 
+// Scenario 6: Oversized Document Photo (4 MB) reduced to under 300 KB for Certificate PDF (20-300 KB)
+const res6 = simulateCompressionConvergence(4000 * 1024, 20, 300, 0.15);
+assert(res6.success && parseFloat(res6.finalKB) <= 300 && parseFloat(res6.finalKB) >= 20,
+  `Oversized document (4MB) reduced into 20-300 KB range (result: ${res6.finalKB} KB)`);
+
 if (failed > 0) {
   console.error(`\n❌ ${failed} test(s) failed in compressor.test.js`);
   process.exit(1);

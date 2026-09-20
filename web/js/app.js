@@ -103,12 +103,10 @@ class ExamToolkitApp {
 
     let filtered = this.exams;
 
-    // Filter by Category
     if (this.selectedCategory && this.selectedCategory !== 'all') {
       filtered = filtered.filter(e => e.category === this.selectedCategory);
     }
 
-    // Filter by Search Query
     if (this.searchQuery) {
       const q = this.searchQuery.toLowerCase();
       filtered = filtered.filter(e =>
@@ -146,12 +144,16 @@ class ExamToolkitApp {
     this.updateSpecBanner();
     this.toggleToolControls();
 
-    if (this.cropper && this.sourceImage) {
-      const spec = this.getCurrentSpec();
-      const targetW = spec.width || 350;
-      const targetH = spec.height || 450;
-      this.cropper.setAspectRatio(targetW, targetH);
-      this.processImage();
+    if (this.sourceImage) {
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else if (this.cropper) {
+        const spec = this.getCurrentSpec();
+        const targetW = spec.width || 350;
+        const targetH = spec.height || 450;
+        this.cropper.setAspectRatio(targetW, targetH);
+        this.processImage();
+      }
     }
   }
 
@@ -163,13 +165,11 @@ class ExamToolkitApp {
     this.updateSpecBanner();
     this.toggleToolControls();
 
-    // Toggle PDF view button
     const viewPdfBtn = document.getElementById('viewPdfBtn');
     if (viewPdfBtn) {
       viewPdfBtn.style.display = docType === 'document' ? 'inline-flex' : 'none';
     }
 
-    // Toggle PDF preview vs Canvas preview
     const pdfPreview = document.getElementById('pdfDocumentPreview');
     const cropperMount = document.getElementById('cropperMount');
     const cropModeBar = document.getElementById('cropModeBar');
@@ -184,12 +184,16 @@ class ExamToolkitApp {
       if (cropModeBar) cropModeBar.style.display = 'flex';
     }
 
-    if (this.cropper && this.sourceImage) {
-      const spec = this.getCurrentSpec();
-      const targetW = spec.width || 350;
-      const targetH = spec.height || 450;
-      this.cropper.setAspectRatio(targetW, targetH);
-      this.processImage();
+    if (this.sourceImage) {
+      if (docType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else if (this.cropper) {
+        const spec = this.getCurrentSpec();
+        const targetW = spec.width || 350;
+        const targetH = spec.height || 450;
+        this.cropper.setAspectRatio(targetW, targetH);
+        this.processImage();
+      }
     }
   }
 
@@ -247,7 +251,7 @@ class ExamToolkitApp {
 
     const dimStr = spec.width && spec.height
       ? `${spec.width} × ${spec.height} px`
-      : (spec.minWidth ? `${spec.minWidth}-${spec.maxWidth}w × ${spec.minHeight}-${spec.maxHeight}h px` : 'Auto A4');
+      : (spec.minWidth ? `${spec.minWidth}-${spec.maxWidth}w × ${spec.minHeight}-${spec.maxHeight}h px` : 'Auto A4 Layout');
 
     banner.innerHTML = `
       <div class="spec-grid">
@@ -280,7 +284,6 @@ class ExamToolkitApp {
       ` : ''}
     `;
 
-    // Auto-enable DOP if exam strictly mandates it
     if (spec.dopRequired) {
       this.settings.dopEnabled = true;
       const dopToggle = document.getElementById('dopToggle');
@@ -321,7 +324,6 @@ class ExamToolkitApp {
     const searchInput = document.getElementById('examSearchInput');
     const examSelect = document.getElementById('examSelect');
 
-    // Mode Buttons (Fit Entire Image vs Crop Region)
     const modeFitBtn = document.getElementById('modeFitBtn');
     const modeCropBtn = document.getElementById('modeCropBtn');
 
@@ -345,7 +347,6 @@ class ExamToolkitApp {
       }
     });
 
-    // Search & Selection
     searchInput?.addEventListener('input', (e) => {
       this.searchQuery = e.target.value.trim();
       this.filterAndRenderExams();
@@ -355,7 +356,6 @@ class ExamToolkitApp {
       this.selectExam(e.target.value);
     });
 
-    // Trending chips
     document.querySelectorAll('.trending-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const id = chip.dataset.id;
@@ -363,7 +363,6 @@ class ExamToolkitApp {
       });
     });
 
-    // Clean Button triggers (prevent event bubbling to dropzone)
     browseFileBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       fileInput?.click();
@@ -374,7 +373,6 @@ class ExamToolkitApp {
       this.openCamera();
     });
 
-    // Drag and drop zone (clicking outside buttons also triggers fileInput)
     if (dropzone) {
       dropzone.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
@@ -406,10 +404,11 @@ class ExamToolkitApp {
       }
     });
 
-    // Rotation
     rotateLeftBtn?.addEventListener('click', () => {
       this.currentRotation = (this.currentRotation - 90 + 360) % 360;
-      if (this.cropper) {
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else if (this.cropper) {
         this.cropper.setRotation(this.currentRotation);
         this.processImage();
       }
@@ -417,13 +416,14 @@ class ExamToolkitApp {
 
     rotateRightBtn?.addEventListener('click', () => {
       this.currentRotation = (this.currentRotation + 90) % 360;
-      if (this.cropper) {
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else if (this.cropper) {
         this.cropper.setRotation(this.currentRotation);
         this.processImage();
       }
     });
 
-    // Crop Actions
     resetCropBtn?.addEventListener('click', () => {
       if (this.cropper) {
         this.cropper.resetCropToAspectRatio();
@@ -433,12 +433,18 @@ class ExamToolkitApp {
     });
 
     applyCropBtn?.addEventListener('click', () => {
-      this.processImage();
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else {
+        this.processImage();
+      }
     });
 
     autoFixBtn?.addEventListener('click', () => {
-      if (this.cropper) {
-        const spec = this.getCurrentSpec();
+      const spec = this.getCurrentSpec();
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(spec);
+      } else if (this.cropper) {
         const targetW = spec.width || 350;
         const targetH = spec.height || 450;
         this.cropper.setAspectRatio(targetW, targetH);
@@ -446,7 +452,6 @@ class ExamToolkitApp {
       }
     });
 
-    // Brightness & Contrast
     const brightnessSlider = document.getElementById('brightnessSlider');
     const brightnessVal = document.getElementById('brightnessVal');
     const contrastSlider = document.getElementById('contrastSlider');
@@ -455,16 +460,23 @@ class ExamToolkitApp {
     brightnessSlider?.addEventListener('input', (e) => {
       this.settings.brightness = parseInt(e.target.value, 10);
       if (brightnessVal) brightnessVal.textContent = e.target.value;
-      this.processImage();
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else {
+        this.processImage();
+      }
     });
 
     contrastSlider?.addEventListener('input', (e) => {
       this.settings.contrast = parseInt(e.target.value, 10);
       if (contrastVal) contrastVal.textContent = e.target.value;
-      this.processImage();
+      if (this.currentDocType === 'document') {
+        this.processPdfDocument(this.getCurrentSpec());
+      } else {
+        this.processImage();
+      }
     });
 
-    // DOP controls
     const dopToggle = document.getElementById('dopToggle');
     const applicantNameInput = document.getElementById('applicantName');
     const photoDateInput = document.getElementById('photoDate');
@@ -484,7 +496,6 @@ class ExamToolkitApp {
       this.processImage();
     });
 
-    // Signature Clean & Stack controls
     const sigCleanToggle = document.getElementById('sigCleanToggle');
     const sigThresholdSlider = document.getElementById('sigThreshold');
     const sigThresholdVal = document.getElementById('sigThresholdVal');
@@ -506,14 +517,12 @@ class ExamToolkitApp {
       this.processImage();
     });
 
-    // Thumb Impression control
     const thumbToggle = document.getElementById('thumbCleanToggle');
     thumbToggle?.addEventListener('change', (e) => {
       this.settings.enhanceThumbEnabled = e.target.checked;
       this.processImage();
     });
 
-    // Face Guide Toggle
     faceBtn?.addEventListener('click', () => {
       this.settings.faceGuideVisible = !this.settings.faceGuideVisible;
       if (this.cropper) {
@@ -521,7 +530,6 @@ class ExamToolkitApp {
       }
     });
 
-    // Download & Share
     downloadBtn?.addEventListener('click', () => this.downloadFile());
     viewPdfBtn?.addEventListener('click', () => {
       if (this.processedDataUrl) {
@@ -530,13 +538,11 @@ class ExamToolkitApp {
     });
     shareBtn?.addEventListener('click', () => this.shareFile());
 
-    // Theme toggle
     themeBtn?.addEventListener('click', () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
     });
 
-    // Webcam Modal buttons
     document.getElementById('closeCameraModalBtn')?.addEventListener('click', () => this.closeCameraModal());
     document.getElementById('snapPhotoBtn')?.addEventListener('click', () => this.snapWebcamPhoto());
   }
@@ -545,11 +551,8 @@ class ExamToolkitApp {
     const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     if (isMobile) {
-      // On mobile devices, native camera input is the most reliable
-      const cameraInput = document.getElementById('cameraInput');
-      cameraInput?.click();
+      document.getElementById('cameraInput')?.click();
     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // On desktop/laptop, open live webcam modal
       const modal = document.getElementById('cameraModal');
       const video = document.getElementById('webcamVideo');
 
@@ -598,7 +601,6 @@ class ExamToolkitApp {
   handleFileUpload(file) {
     this.sourceFile = file;
 
-    // Check for HEIC
     if (file.name.toLowerCase().endsWith('.heic') || file.type.includes('heic')) {
       alert('HEIC file detected. Your browser will convert it to standard JPG for exam portal submission.');
     }
@@ -610,7 +612,6 @@ class ExamToolkitApp {
         this.sourceImage = img;
         this.currentRotation = 0;
 
-        // Mount Interactive Cropper
         const mount = document.getElementById('cropperMount');
         const spec = this.getCurrentSpec();
         const targetW = spec.width || 350;
@@ -629,23 +630,24 @@ class ExamToolkitApp {
         this.cropper.setImage(img, targetW, targetH, 0);
         this.cropper.setMode(this.cropMode);
 
-        // Update PDF thumbnail if in document mode
         const pdfThumb = document.getElementById('pdfDocThumb');
         if (pdfThumb) pdfThumb.src = img.src;
 
-        // Show editor, comparison stats, and validation
         document.getElementById('editorCard').style.display = 'block';
         document.getElementById('validationCard').style.display = 'block';
         document.getElementById('actionBar').style.display = 'flex';
 
-        // Update original stats
         const origKB = (file.size / 1024).toFixed(1);
         const origStats = document.getElementById('origStats');
         if (origStats) {
           origStats.textContent = `${origKB} KB • ${img.naturalWidth} × ${img.naturalHeight} px`;
         }
 
-        this.processImage();
+        if (this.currentDocType === 'document') {
+          this.processPdfDocument(spec);
+        } else {
+          this.processImage();
+        }
       };
       img.src = event.target.result;
     };
@@ -653,32 +655,25 @@ class ExamToolkitApp {
   }
 
   async processImage() {
-    if (!this.sourceImage) return;
+    if (!this.sourceImage || !this.cropper) return;
 
     const spec = this.getCurrentSpec();
     if (!spec) return;
 
-    // Handle Certificate to PDF mode
     if (spec.format === 'application/pdf' || this.currentDocType === 'document') {
       await this.processPdfDocument(spec);
       return;
     }
 
-    if (!this.cropper) return;
-
-    // Determine target canvas dimensions prescribed by the exam
     const targetW = spec.width || 350;
     const targetH = spec.height || 450;
 
-    // 1. Extract canvas: handles both Fit Entire Image (Pad White) and Crop Selection!
     let canvas = this.cropper.getCroppedCanvas(targetW, targetH);
 
-    // 2. Apply Brightness and Contrast
     if (this.settings.brightness !== 0 || this.settings.contrast !== 0) {
       canvas = applyBrightnessContrast(canvas, this.settings.brightness, this.settings.contrast);
     }
 
-    // 3. Document-type specific filters
     if (this.currentDocType === 'signature') {
       if (this.settings.cleanSigEnabled) {
         canvas = cleanSignature(canvas, {
@@ -695,7 +690,6 @@ class ExamToolkitApp {
       canvas = applyDopStamp(canvas, this.settings.applicantName, this.settings.photoDate);
     }
 
-    // 4. Smart Iterative Compression to hit [minKB, maxKB] (enhances lower sizes into prescribed range)
     const compressRes = await compressCanvasToKB(canvas, {
       minKB: spec.minKB || 10,
       maxKB: spec.maxKB || 50,
@@ -705,13 +699,11 @@ class ExamToolkitApp {
     this.processedBlob = compressRes.blob;
     this.processedDataUrl = URL.createObjectURL(this.processedBlob);
 
-    // Update Processed stats
     const procStats = document.getElementById('procStats');
     if (procStats) {
       procStats.textContent = `${compressRes.sizeKB} KB • ${canvas.width} × ${canvas.height} px • ${spec.formatName || 'JPG'}`;
     }
 
-    // 5. Validation Check
     const validation = validateFileAgainstSpec({
       width: canvas.width,
       height: canvas.height,
@@ -720,15 +712,72 @@ class ExamToolkitApp {
       formatName: spec.formatName || 'JPG'
     }, spec);
 
-    this.renderValidation(validation, compressRes.sizeKB, canvas.width, canvas.height);
+    this.renderValidation(validation, compressRes.sizeKB, canvas.width, canvas.height, spec);
   }
 
   async processPdfDocument(spec) {
-    // Generate 100% valid PDF from uploaded certificate image
+    if (!this.sourceImage) return;
+
+    // 1. Draw onto offscreen document canvas
+    const maxDim = 1600;
+    let w = this.sourceImage.naturalWidth || 1200;
+    let h = this.sourceImage.naturalHeight || 1600;
+
+    // Account for rotation
+    const isPerp = Math.abs(this.currentRotation % 180) === 90;
+    const baseW = isPerp ? h : w;
+    const baseH = isPerp ? w : h;
+
+    let targetW = baseW;
+    let targetH = baseH;
+    if (targetW > maxDim || targetH > maxDim) {
+      const scale = maxDim / Math.max(targetW, targetH);
+      targetW = Math.round(targetW * scale);
+      targetH = Math.round(targetH * scale);
+    }
+
+    const docCanvas = document.createElement('canvas');
+    docCanvas.width = targetW;
+    docCanvas.height = targetH;
+    const ctx = docCanvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, targetW, targetH);
+
+    ctx.save();
+    ctx.translate(targetW / 2, targetH / 2);
+    ctx.rotate((this.currentRotation * Math.PI) / 180);
+    ctx.drawImage(
+      this.sourceImage,
+      -this.sourceImage.naturalWidth / 2,
+      -this.sourceImage.naturalHeight / 2,
+      this.sourceImage.naturalWidth,
+      this.sourceImage.naturalHeight
+    );
+    ctx.restore();
+
+    // 2. Apply Brightness & Contrast
+    let processedCanvas = docCanvas;
+    if (this.settings.brightness !== 0 || this.settings.contrast !== 0) {
+      processedCanvas = applyBrightnessContrast(docCanvas, this.settings.brightness, this.settings.contrast);
+    }
+
+    // 3. Compress document image strictly to target KB range (leaving 2KB margin for PDF envelope)
+    const targetMaxKB = Math.max(20, (spec.maxKB || 300) - 2);
+    const targetMinKB = Math.max(10, (spec.minKB || 20));
+    const targetKB = Math.round(targetMinKB + (targetMaxKB - targetMinKB) * 0.45);
+
+    const compressRes = await compressCanvasToKB(processedCanvas, {
+      minKB: targetMinKB,
+      maxKB: targetMaxKB,
+      format: 'image/jpeg',
+      targetKB
+    });
+
+    // 4. Build Standards-Compliant PDF 1.4
     const pdfRes = await createPdfFromImages([{
-      blob: this.sourceFile,
-      width: this.sourceImage.naturalWidth || 800,
-      height: this.sourceImage.naturalHeight || 1000
+      blob: compressRes.blob,
+      width: processedCanvas.width,
+      height: processedCanvas.height
     }], { pageSize: 'A4', margin: 20 });
 
     this.processedBlob = pdfRes.blob;
@@ -736,7 +785,7 @@ class ExamToolkitApp {
 
     const pdfThumb = document.getElementById('pdfDocThumb');
     if (pdfThumb) {
-      pdfThumb.src = this.sourceImage.src;
+      pdfThumb.src = processedCanvas.toDataURL('image/jpeg', 0.85);
     }
 
     const procStats = document.getElementById('procStats');
@@ -750,10 +799,10 @@ class ExamToolkitApp {
       formatName: 'PDF'
     }, spec);
 
-    this.renderValidation(validation, pdfRes.sizeKB, 'A4', 'Page');
+    this.renderValidation(validation, pdfRes.sizeKB, 'A4', 'Page', spec);
   }
 
-  renderValidation(validation, actualKB, actualW, actualH) {
+  renderValidation(validation, actualKB, actualW, actualH, spec = null) {
     const badge = document.getElementById('statusBadge');
     const summary = document.getElementById('validationSummary');
     const checksBody = document.getElementById('checksTableBody');
@@ -765,14 +814,41 @@ class ExamToolkitApp {
       badge.className = 'badge badge-pass';
       badge.innerHTML = '✓ PASS - Ready to Upload';
       if (autoFixBox) autoFixBox.style.display = 'none';
-    } else if (validation.status === 'WARNING') {
-      badge.className = 'badge badge-warning';
-      badge.innerHTML = '⚠️ Minor Warning';
-      if (autoFixBox) autoFixBox.style.display = 'flex';
     } else {
-      badge.className = 'badge badge-fail';
-      badge.innerHTML = '❌ Needs Adjustment';
-      if (autoFixBox) autoFixBox.style.display = 'flex';
+      if (validation.status === 'WARNING') {
+        badge.className = 'badge badge-warning';
+        badge.innerHTML = '⚠️ Minor Warning';
+      } else {
+        badge.className = 'badge badge-fail';
+        badge.innerHTML = '❌ Needs Adjustment';
+      }
+
+      // Configure Auto-Fix Box dynamically based on the actual failure
+      if (autoFixBox) {
+        autoFixBox.style.display = 'flex';
+        const sizeCheck = validation.checks.find(c => c.name === 'File Size');
+        const dimCheck = validation.checks.find(c => c.name.includes('Dimensions') || c.name.includes('Aspect'));
+
+        const fixText = autoFixBox.querySelector('span');
+        const fixBtn = document.getElementById('autoFixBtn');
+
+        if (sizeCheck && !sizeCheck.passed) {
+          const currentSize = parseFloat(actualKB);
+          const maxKB = spec ? spec.maxKB : 300;
+          const minKB = spec ? spec.minKB : 20;
+
+          if (currentSize > maxKB) {
+            if (fixText) fixText.innerHTML = `⚠️ <strong>File size (${actualKB} KB) exceeds the maximum limit of ${maxKB} KB.</strong>`;
+            if (fixBtn) fixBtn.innerHTML = `⚡ Auto-Reduce Size to Under ${maxKB} KB`;
+          } else {
+            if (fixText) fixText.innerHTML = `⚠️ <strong>File size (${actualKB} KB) is below the minimum required ${minKB} KB.</strong>`;
+            if (fixBtn) fixBtn.innerHTML = `⚡ Enhance Size to ${minKB} KB - ${maxKB} KB`;
+          }
+        } else if (dimCheck && !dimCheck.passed) {
+          if (fixText) fixText.innerHTML = `⚠️ <strong>Dimensions do not match the required ${dimCheck.expected}.</strong>`;
+          if (fixBtn) fixBtn.innerHTML = `✂️ Auto-Crop & Fit to Exam Size`;
+        }
+      }
     }
 
     summary.textContent = validation.summary;
