@@ -2,7 +2,6 @@
 	"appId": "com.examready.toolkit",
 	"appName": "ExamReady",
 	"webDir": "web",
-	"bundledWebRuntime": false,
 	"server": {
 		"androidScheme": "https"
 	},

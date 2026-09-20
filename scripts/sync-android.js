@@ -48,7 +48,9 @@ copyRecursive(coreDir, path.join(androidAssetsDir, 'core'));
 copyRecursive(coreDir, path.join(androidAssetsDir, 'web', 'core'));
 
 // 4. Copy YouTube logo if present
-const ytLogoSrc = path.join(rootDir, 'The-Competitive-Edge-Logo.jpg');
+const ytLogoSrc = fs.existsSync(path.join(rootDir, 'assets', 'The-Competitive-Edge-Logo.jpg'))
+  ? path.join(rootDir, 'assets', 'The-Competitive-Edge-Logo.jpg')
+  : path.join(rootDir, 'The-Competitive-Edge-Logo.jpg');
 const ytLogoDest = path.join(androidAssetsDir, 'assets', 'The-Competitive-Edge-Logo.jpg');
 if (fs.existsSync(ytLogoSrc)) {
   fs.copyFileSync(ytLogoSrc, ytLogoDest);

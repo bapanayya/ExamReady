@@ -1,4 +1,4 @@
-const CACHE_NAME = 'exam-toolkit-v1';
+const CACHE_NAME = 'exam-toolkit-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,8 +6,10 @@ const ASSETS_TO_CACHE = [
   './css/styles.css',
   './js/app.js',
   './js/cropper.js',
-  './assets/icons/icon-192.svg',
-  './assets/icons/icon-512.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/favicon-64.png',
+  './assets/icons/apple-touch-icon.png',
   './assets/The-Competitive-Edge-Logo.jpg',
   './core/exams.json',
   './core/categories.json',
