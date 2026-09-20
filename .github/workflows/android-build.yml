@@ -12,6 +12,8 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -58,3 +60,26 @@ jobs:
         with:
           name: ExamReady-Debug-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Prepare Named Release APK
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk ExamReady.apk
+
+      - name: Create or Update GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: v1.0.0
+          name: "ExamReady Android App v1.0.0 (Official Release)"
+          body: |
+            ### 📱 ExamReady Official Android Application
+            - **Official Logo**: Embedded with "The Competitive Edge" golden shield logo
+            - **37+ Competitive Exams**: SSC, UPSC, IBPS, NTA (NEET/JEE/CUET), IITs (GATE/JAM), State PSCs (APPSC)
+            - **Features**: Auto-Crop & Fit, Intelligent KB Optimizer, Certificate to PDF, 100% Free & Offline
+            - **Direct Download**: Tap `ExamReady.apk` below to download and install directly on your Android smartphone!
+          files: |
+            ExamReady.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

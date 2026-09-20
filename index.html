@@ -511,37 +511,79 @@
     </div>
   </div>
 
-  <!-- Install Help Modal -->
-  <div id="installHelpModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; align-items:center; justify-content:center; padding:1rem;">
-    <div class="install-modal-card" style="background:var(--bg-card); border-radius:12px; padding:1.25rem; max-width:480px; width:100%; box-shadow:0 15px 35px rgba(0,0,0,0.4); border:1px solid var(--border-color);">
-      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.65rem;">
-        <h3 style="margin:0; font-size:1.15rem; color:var(--text-main); display:flex; align-items:center; gap:0.5rem;">
-          <span>📲</span> Install ExamReady App
+  <!-- Install & Download App Modal -->
+  <div id="installHelpModal" class="modal-overlay" style="display:none;">
+    <div class="install-modal-card">
+      <div class="install-modal-header">
+        <h3 class="install-modal-title">
+          <span>📲</span>
+          <span>Install ExamReady</span>
         </h3>
-        <button id="closeInstallModalBtn" class="btn-icon" title="Close" type="button" style="font-size:1.1rem;">✕</button>
+        <button id="closeInstallModalBtn" class="close-modal-btn" title="Close" type="button">✕</button>
       </div>
-      <div style="display:flex; flex-direction:column; gap:0.85rem; margin:1rem 0;">
-        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
-          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">📱 Android (Chrome / Edge)</div>
-          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
-            Tap the <strong>three dots (⋮)</strong> in the top-right corner of Chrome, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+
+      <div class="install-modal-body">
+        
+        <!-- Primary Action: Direct Android APK Download -->
+        <div class="install-card-highlight">
+          <div class="install-card-badge">⭐ Recommended for Android</div>
+          <a href="https://github.com/bapanayya/ExamReady/releases/latest/download/ExamReady.apk" download="ExamReady.apk" class="btn-download-apk" id="modalApkDownloadBtn" title="Download ExamReady APK directly">
+            <span class="action-icon">🤖</span>
+            <div class="action-text">
+              <span class="action-title">Download Android App (.APK)</span>
+              <span class="action-subtitle">Direct 1-Tap Download • Free & 100% Offline</span>
+            </div>
+            <span class="action-badge">FREE</span>
+          </a>
+          <p class="install-hint">
+            💡 <strong>How to install:</strong> Tap the button above to download. When complete, tap <strong>ExamReady.apk</strong> in your notifications or Downloads folder &rarr; tap <strong>Install</strong>.
           </p>
         </div>
-        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
-          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">💻 Desktop (Windows / Mac / Linux)</div>
-          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
-            Click the <strong>Install icon (🖥️)</strong> on the right side of the browser address bar, or open Menu ⋮ &rarr; <strong>"Install ExamReady"</strong>.
-          </p>
+
+        <!-- Secondary Action: Add to Home Screen (Instant PWA) -->
+        <div class="install-option-row">
+          <button type="button" class="btn-install-pwa" id="modalPwaInstallBtn">
+            <span class="action-icon">⚡</span>
+            <div class="action-text">
+              <span class="action-title">Add to Home Screen (Web App)</span>
+              <span class="action-subtitle">Instant launch • No APK file download needed</span>
+            </div>
+            <span class="action-badge-outline">PWA</span>
+          </button>
+          <div id="pwaInstructionBanner" class="pwa-guide-box" style="display:none;">
+            <p style="margin:0;">
+              📱 <strong>Browser Home Screen:</strong> Tap the <strong>three dots (⋮)</strong> in Chrome/Edge &rarr; tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+            </p>
+          </div>
         </div>
-        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
-          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">🍏 iPhone / iPad (Safari)</div>
-          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
-            Tap the <strong>Share button (⎋)</strong> at the bottom of Safari, scroll down, and tap <strong>"Add to Home Screen"</strong>.
-          </p>
+
+        <!-- Desktop & iOS Accordion -->
+        <div class="install-other-platforms">
+          <details class="platform-accordion">
+            <summary class="accordion-summary">
+              <span>💻 Desktop (Windows / Mac) & 🍏 iPhone</span>
+              <span class="accordion-arrow">▼</span>
+            </summary>
+            <div class="accordion-content">
+              <div class="platform-subitem">
+                <div class="platform-title">💻 Windows Desktop:</div>
+                <p style="margin:0.2rem 0;">Double-click <code>ExamReady-Desktop.bat</code> in the app folder for standalone offline window mode, or click the install icon (🖥️) in the address bar.</p>
+                <a href="https://github.com/bapanayya/ExamReady/archive/refs/heads/main.zip" class="btn-text-link" target="_blank" rel="noopener noreferrer">
+                  📦 Download Desktop Offline Package (.zip) &rarr;
+                </a>
+              </div>
+              <div class="platform-subitem" style="margin-top:0.5rem;">
+                <div class="platform-title">🍏 iPhone / iPad (Safari):</div>
+                <p style="margin:0.2rem 0;">Tap the <strong>Share button (⎋)</strong> at the bottom of Safari &rarr; scroll down &rarr; tap <strong>"Add to Home Screen"</strong>.</p>
+              </div>
+            </div>
+          </details>
         </div>
+
       </div>
-      <div>
-        <button id="confirmInstallCloseBtn" class="btn btn-primary" style="width:100%; font-weight:700;" type="button">Got it!</button>
+
+      <div class="install-modal-footer">
+        <button id="confirmInstallCloseBtn" class="btn btn-secondary close-btn-full" type="button">Close</button>
       </div>
     </div>
   </div>

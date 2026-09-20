@@ -90,10 +90,13 @@ class ExamToolkitApp {
     const installModal = document.getElementById('installHelpModal');
     const closeBtn = document.getElementById('closeInstallModalBtn');
     const confirmBtn = document.getElementById('confirmInstallCloseBtn');
+    const modalPwaBtn = document.getElementById('modalPwaInstallBtn');
+    const pwaBanner = document.getElementById('pwaInstructionBanner');
+    const apkDownloadBtn = document.getElementById('modalApkDownloadBtn');
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (installBtnText) {
-      installBtnText.textContent = isMobile ? 'Install Mobile App' : 'Install Desktop App';
+      installBtnText.textContent = isMobile ? 'Install / Download App' : 'Install Desktop App';
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -102,22 +105,47 @@ class ExamToolkitApp {
       if (installBtn) installBtn.style.display = 'inline-flex';
     });
 
-    installBtn?.addEventListener('click', async () => {
+    const openModal = () => {
+      if (installModal) installModal.style.display = 'flex';
+      if (pwaBanner) pwaBanner.style.display = 'none';
+    };
+
+    const hideModal = () => {
+      if (installModal) installModal.style.display = 'none';
+    };
+
+    installBtn?.addEventListener('click', () => {
+      openModal();
+    });
+
+    modalPwaBtn?.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           deferredPrompt = null;
+          hideModal();
           if (installBtn) installBtn.style.display = 'none';
         }
       } else {
-        if (installModal) installModal.style.display = 'flex';
+        if (pwaBanner) {
+          pwaBanner.style.display = pwaBanner.style.display === 'none' ? 'block' : 'none';
+        }
       }
     });
 
-    const hideModal = () => {
-      if (installModal) installModal.style.display = 'none';
-    };
+    apkDownloadBtn?.addEventListener('click', () => {
+      // Provide positive user feedback
+      const originalText = apkDownloadBtn.querySelector('.action-title')?.textContent;
+      if (originalText && apkDownloadBtn.querySelector('.action-title')) {
+        apkDownloadBtn.querySelector('.action-title').textContent = '⏳ Downloading ExamReady.apk...';
+        setTimeout(() => {
+          if (apkDownloadBtn.querySelector('.action-title')) {
+            apkDownloadBtn.querySelector('.action-title').textContent = originalText;
+          }
+        }, 4000);
+      }
+    });
 
     closeBtn?.addEventListener('click', hideModal);
     confirmBtn?.addEventListener('click', hideModal);
@@ -128,6 +156,7 @@ class ExamToolkitApp {
     window.addEventListener('appinstalled', () => {
       deferredPrompt = null;
       if (installBtn) installBtn.style.display = 'none';
+      hideModal();
     });
   }
 

@@ -46,11 +46,13 @@ jobs:
 
       - name: Prepare Static Site Artifact
         run: |
-          mkdir -p site/core site/web site/assets
+          mkdir -p site/core site/web site/assets site/downloads
           cp -r web/* site/
           cp -r core site/
           # Ensure core is accessible at relative path
           cp -r core site/web/ 2>/dev/null || true
+          # Fetch latest release APK if available so GitHub Pages also serves it directly
+          curl -L -f -s -o site/downloads/ExamReady.apk https://github.com/bapanayya/ExamReady/releases/latest/download/ExamReady.apk || true
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
