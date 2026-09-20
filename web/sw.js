@@ -5,7 +5,7 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './css/styles.css',
   './js/app.js',
-  './js/ui.js',
+  './js/cropper.js',
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',
   '../core/exams.json',

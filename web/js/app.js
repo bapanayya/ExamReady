@@ -1,4 +1,5 @@
-import { cropAndScale, applyDopStamp, cleanSignature, createStackedSignatures, enhanceThumbImpression, rotateCanvas } from '../../core/image-processor.js';
+import { InteractiveCropper } from './cropper.js';
+import { applyBrightnessContrast, applyDopStamp, cleanSignature, createStackedSignatures, enhanceThumbImpression } from '../../core/image-processor.js';
 import { compressCanvasToKB } from '../../core/compressor.js';
 import { validateFileAgainstSpec } from '../../core/validator.js';
 import { createPdfFromImages } from '../../core/pdf-builder.js';
@@ -11,14 +12,17 @@ class ExamToolkitApp {
     this.currentDocType = 'photo';
     this.sourceImage = null;
     this.sourceFile = null;
+    this.cropper = null;
     this.processedBlob = null;
     this.processedDataUrl = null;
     this.currentRotation = 0;
     this.selectedCategory = 'all';
     this.searchQuery = '';
 
-    // Edit settings
+    // Adjustments & Filters
     this.settings = {
+      brightness: 0,
+      contrast: 0,
       dopEnabled: false,
       applicantName: '',
       photoDate: new Date().toISOString().split('T')[0],
@@ -138,7 +142,11 @@ class ExamToolkitApp {
     this.updateSpecBanner();
     this.toggleToolControls();
 
-    if (this.sourceImage) {
+    if (this.cropper && this.sourceImage) {
+      const spec = this.getCurrentSpec();
+      const targetW = spec.width || 350;
+      const targetH = spec.height || 450;
+      this.cropper.setAspectRatio(targetW, targetH);
       this.processImage();
     }
   }
@@ -151,14 +159,11 @@ class ExamToolkitApp {
     this.updateSpecBanner();
     this.toggleToolControls();
 
-    // Auto toggle face guide for photo if available
-    const faceOverlay = document.getElementById('faceGuideOverlay');
-    if (faceOverlay && docType !== 'photo') {
-      faceOverlay.style.display = 'none';
-      this.settings.faceGuideVisible = false;
-    }
-
-    if (this.sourceImage) {
+    if (this.cropper && this.sourceImage) {
+      const spec = this.getCurrentSpec();
+      const targetW = spec.width || 350;
+      const targetH = spec.height || 450;
+      this.cropper.setAspectRatio(targetW, targetH);
       this.processImage();
     }
   }
@@ -278,8 +283,12 @@ class ExamToolkitApp {
     const dropzone = document.getElementById('dropzone');
     const downloadBtn = document.getElementById('downloadBtn');
     const shareBtn = document.getElementById('shareBtn');
-    const rotateBtn = document.getElementById('rotateRightBtn');
+    const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+    const rotateRightBtn = document.getElementById('rotateRightBtn');
     const faceBtn = document.getElementById('faceGuideToggleBtn');
+    const resetCropBtn = document.getElementById('resetCropBtn');
+    const applyCropBtn = document.getElementById('applyCropBtn');
+    const autoFixBtn = document.getElementById('autoFixBtn');
     const themeBtn = document.getElementById('themeToggleBtn');
     const searchInput = document.getElementById('examSearchInput');
     const examSelect = document.getElementById('examSelect');
@@ -329,6 +338,64 @@ class ExamToolkitApp {
       if (e.target.files && e.target.files[0]) {
         this.handleFileUpload(e.target.files[0]);
       }
+    });
+
+    // Rotation
+    rotateLeftBtn?.addEventListener('click', () => {
+      this.currentRotation = (this.currentRotation - 90 + 360) % 360;
+      if (this.cropper) {
+        this.cropper.setRotation(this.currentRotation);
+        this.processImage();
+      }
+    });
+
+    rotateRightBtn?.addEventListener('click', () => {
+      this.currentRotation = (this.currentRotation + 90) % 360;
+      if (this.cropper) {
+        this.cropper.setRotation(this.currentRotation);
+        this.processImage();
+      }
+    });
+
+    // Crop Actions
+    resetCropBtn?.addEventListener('click', () => {
+      if (this.cropper) {
+        this.cropper.resetCropToAspectRatio();
+        this.cropper.renderCropBox();
+        this.processImage();
+      }
+    });
+
+    applyCropBtn?.addEventListener('click', () => {
+      this.processImage();
+    });
+
+    autoFixBtn?.addEventListener('click', () => {
+      if (this.cropper) {
+        const spec = this.getCurrentSpec();
+        const targetW = spec.width || 350;
+        const targetH = spec.height || 450;
+        this.cropper.setAspectRatio(targetW, targetH);
+        this.processImage();
+      }
+    });
+
+    // Brightness & Contrast
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const brightnessVal = document.getElementById('brightnessVal');
+    const contrastSlider = document.getElementById('contrastSlider');
+    const contrastVal = document.getElementById('contrastVal');
+
+    brightnessSlider?.addEventListener('input', (e) => {
+      this.settings.brightness = parseInt(e.target.value, 10);
+      if (brightnessVal) brightnessVal.textContent = e.target.value;
+      this.processImage();
+    });
+
+    contrastSlider?.addEventListener('input', (e) => {
+      this.settings.contrast = parseInt(e.target.value, 10);
+      if (contrastVal) contrastVal.textContent = e.target.value;
+      this.processImage();
     });
 
     // DOP controls
@@ -383,16 +450,9 @@ class ExamToolkitApp {
     // Face Guide Toggle
     faceBtn?.addEventListener('click', () => {
       this.settings.faceGuideVisible = !this.settings.faceGuideVisible;
-      const faceOverlay = document.getElementById('faceGuideOverlay');
-      if (faceOverlay) {
-        faceOverlay.style.display = this.settings.faceGuideVisible ? 'flex' : 'none';
+      if (this.cropper) {
+        this.cropper.setFaceGuideVisible(this.settings.faceGuideVisible);
       }
-    });
-
-    // Rotation
-    rotateBtn?.addEventListener('click', () => {
-      this.currentRotation = (this.currentRotation + 90) % 360;
-      this.processImage();
     });
 
     // Download & Share
@@ -421,6 +481,25 @@ class ExamToolkitApp {
         this.sourceImage = img;
         this.currentRotation = 0;
 
+        // Mount Interactive Cropper
+        const mount = document.getElementById('cropperMount');
+        const spec = this.getCurrentSpec();
+        const targetW = spec.width || 350;
+        const targetH = spec.height || 450;
+
+        if (!this.cropper) {
+          this.cropper = new InteractiveCropper(mount, {
+            aspectRatio: targetW / targetH,
+            onCropChange: () => {
+              // Debounced processing
+              clearTimeout(this._cropDebounce);
+              this._cropDebounce = setTimeout(() => this.processImage(), 120);
+            }
+          });
+        }
+
+        this.cropper.setImage(img, targetW, targetH, 0);
+
         // Show editor, comparison stats, and validation
         document.getElementById('editorCard').style.display = 'block';
         document.getElementById('validationCard').style.display = 'block';
@@ -441,7 +520,7 @@ class ExamToolkitApp {
   }
 
   async processImage() {
-    if (!this.sourceImage) return;
+    if (!this.sourceImage || !this.cropper) return;
 
     const spec = this.getCurrentSpec();
     if (!spec) return;
@@ -452,21 +531,16 @@ class ExamToolkitApp {
       return;
     }
 
-    // Determine target canvas dimensions
+    // Determine target canvas dimensions prescribed by the exam
     const targetW = spec.width || 350;
     const targetH = spec.height || 450;
 
-    // 1. Crop and Scale into target aspect
-    let canvas = cropAndScale(
-      this.sourceImage,
-      { x: 0, y: 0, width: this.sourceImage.width, height: this.sourceImage.height },
-      targetW,
-      targetH
-    );
+    // 1. Extract cropped canvas from InteractiveCropper at EXACT prescribed dimensions!
+    let canvas = this.cropper.getCroppedCanvas(targetW, targetH);
 
-    // 2. Rotate if requested
-    if (this.currentRotation !== 0) {
-      canvas = rotateCanvas(canvas, this.currentRotation);
+    // 2. Apply Brightness and Contrast
+    if (this.settings.brightness !== 0 || this.settings.contrast !== 0) {
+      canvas = applyBrightnessContrast(canvas, this.settings.brightness, this.settings.contrast);
     }
 
     // 3. Document-type specific filters
@@ -496,12 +570,6 @@ class ExamToolkitApp {
     this.processedBlob = compressRes.blob;
     this.processedDataUrl = URL.createObjectURL(this.processedBlob);
 
-    // Update preview canvas in DOM
-    const previewImg = document.getElementById('previewImg');
-    if (previewImg) {
-      previewImg.src = this.processedDataUrl;
-    }
-
     // Update Processed stats
     const procStats = document.getElementById('procStats');
     if (procStats) {
@@ -530,11 +598,6 @@ class ExamToolkitApp {
     this.processedBlob = pdfRes.blob;
     this.processedDataUrl = URL.createObjectURL(this.processedBlob);
 
-    const previewImg = document.getElementById('previewImg');
-    if (previewImg) {
-      previewImg.src = './assets/icons/icon-512.svg';
-    }
-
     const procStats = document.getElementById('procStats');
     if (procStats) {
       procStats.textContent = `${pdfRes.sizeKB} KB • A4 PDF (${pdfRes.pageCount} Page)`;
@@ -553,18 +616,22 @@ class ExamToolkitApp {
     const badge = document.getElementById('statusBadge');
     const summary = document.getElementById('validationSummary');
     const checksBody = document.getElementById('checksTableBody');
+    const autoFixBox = document.getElementById('autoFixBox');
 
     if (!badge || !summary || !checksBody) return;
 
     if (validation.isValid) {
       badge.className = 'badge badge-pass';
       badge.innerHTML = '✓ PASS - Ready to Upload';
+      if (autoFixBox) autoFixBox.style.display = 'none';
     } else if (validation.status === 'WARNING') {
       badge.className = 'badge badge-warning';
       badge.innerHTML = '⚠️ Minor Warning';
+      if (autoFixBox) autoFixBox.style.display = 'flex';
     } else {
       badge.className = 'badge badge-fail';
       badge.innerHTML = '❌ Needs Adjustment';
+      if (autoFixBox) autoFixBox.style.display = 'flex';
     }
 
     summary.textContent = validation.summary;

@@ -125,12 +125,22 @@
       <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none;">
     </section>
 
-    <!-- Step 3: Interactive Studio & Fine-Tuning -->
+    <!-- Step 3: Interactive Crop & Adjust Studio -->
     <section class="card" id="editorCard" style="display:none;">
-      <h2 class="card-title">
-        <span class="step-num">3</span>
-        Fine-Tune & Enhance
-      </h2>
+      <div class="cropper-card-header">
+        <h2 class="card-title" style="margin-bottom:0;">
+          <span class="step-num">3</span>
+          Crop & Adjust
+        </h2>
+        <div class="cropper-rotate-btns">
+          <button id="rotateLeftBtn" class="btn btn-secondary" title="Rotate 90° Left" style="padding:0.4rem 0.75rem;">
+            ↺ Left
+          </button>
+          <button id="rotateRightBtn" class="btn btn-secondary" title="Rotate 90° Right" style="padding:0.4rem 0.75rem;">
+            ↻ Right
+          </button>
+        </div>
+      </div>
 
       <!-- Before vs After Comparison Card -->
       <div class="comparison-card">
@@ -139,32 +149,53 @@
           <span class="stat" id="origStats">0 KB • 0 × 0 px</span>
         </div>
         <div class="comparison-box">
-          <span class="title">Optimized Output</span>
+          <span class="title">Prescribed Output</span>
           <span class="stat" id="procStats" style="color:var(--primary);">0 KB • 0 × 0 px</span>
         </div>
       </div>
 
       <div class="editor-container">
-        <!-- Canvas Preview Area -->
-        <div class="preview-wrapper">
-          <div class="canvas-container">
-            <img id="previewImg" class="preview-canvas" alt="Processed Preview">
-            <div id="faceGuideOverlay" class="face-guide-overlay" style="display:none;">
-              <div class="face-guide-oval"></div>
-            </div>
+        <!-- Interactive Cropper Mount Area -->
+        <div>
+          <div class="preview-wrapper">
+            <div id="cropperMount"></div>
           </div>
-          <div class="toolbar">
-            <button id="rotateRightBtn" class="btn btn-secondary" title="Rotate 90 degrees">
-              🔄 Rotate 90°
-            </button>
-            <button id="faceGuideToggleBtn" class="btn btn-secondary" title="Show 75-80% Face Area Guide">
-              👤 Face Guide
+          <div class="cropper-toolbar">
+            <div style="display:flex; gap:0.4rem;">
+              <button id="faceGuideToggleBtn" class="btn btn-secondary" title="Toggle 75-80% Face Area Guide" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
+                👤 Face Guide
+              </button>
+              <button id="resetCropBtn" class="btn btn-secondary" title="Reset Crop Selection to Full Image" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
+                ↺ Reset Crop
+              </button>
+            </div>
+            <button id="applyCropBtn" class="btn btn-primary" style="font-size:0.85rem; padding:0.5rem 1.2rem; font-weight:700;">
+              ✨ Apply & Optimize
             </button>
           </div>
         </div>
 
         <!-- Tool Settings Panel -->
         <div class="tools-panel">
+
+          <!-- Image Adjustments (Brightness / Contrast) -->
+          <div class="tool-group">
+            <div class="tool-header">
+              <span class="tool-title">🎛️ Image Adjustments</span>
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem;">
+              <label class="form-label" for="brightnessSlider">
+                Brightness: <span id="brightnessVal">0</span>
+              </label>
+              <input type="range" id="brightnessSlider" min="-50" max="50" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contrastSlider">
+                Contrast: <span id="contrastVal">0</span>
+              </label>
+              <input type="range" id="contrastSlider" min="-50" max="50" value="0">
+            </div>
+          </div>
 
           <!-- Photo Tool: DOP (Date of Photo) Stamper -->
           <div class="tool-group" id="dopToolGroup" style="display:none;">
@@ -275,6 +306,16 @@
           <!-- Populated dynamically via app.js -->
         </tbody>
       </table>
+
+      <!-- Auto Fix Button if adjustment is needed -->
+      <div id="autoFixBox" class="auto-fix-box" style="display:none;">
+        <span style="font-size:0.85rem; color:#92400e;">
+          ⚠️ <strong>Adjustment needed:</strong> File dimensions or aspect ratio do not match this exam.
+        </span>
+        <button id="autoFixBtn" class="btn btn-primary" style="font-size:0.8rem; padding:0.45rem 1rem;">
+          ✨ Auto-Crop & Fit to Exam Size
+        </button>
+      </div>
     </section>
 
     <!-- Step 5: Download & Action Bar -->

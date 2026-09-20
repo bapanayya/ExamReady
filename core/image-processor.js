@@ -1,14 +1,14 @@
 /**
  * Image Processor Engine
- * Canvas operations: Cropping, Resizing, DOP (Date of Photo) Stamping,
+ * Canvas operations: Cropping, Resizing, Brightness/Contrast, DOP Stamping,
  * Face Coverage Visual Guides, Signature Shadow/Ink Cleanup,
  * Stacked Signatures, and Thumb Impression Enhancement.
  */
 
 /**
- * Crops and scales an image into target dimensions on an HTML5 canvas
+ * Crops and scales an image or canvas into target dimensions
  */
-export function cropAndScale(sourceImage, cropBox, targetWidth, targetHeight, options = {}) {
+export function cropAndScale(source, cropBox, targetWidth, targetHeight, options = {}) {
   const canvas = document.createElement('canvas');
   canvas.width = targetWidth;
   canvas.height = targetHeight;
@@ -24,11 +24,59 @@ export function cropAndScale(sourceImage, cropBox, targetWidth, targetHeight, op
 
   const sx = cropBox.x || 0;
   const sy = cropBox.y || 0;
-  const sw = cropBox.width || sourceImage.naturalWidth || sourceImage.width;
-  const sh = cropBox.height || sourceImage.naturalHeight || sourceImage.height;
+  const sw = cropBox.width || source.naturalWidth || source.width;
+  const sh = cropBox.height || source.naturalHeight || source.height;
 
-  ctx.drawImage(sourceImage, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
   return canvas;
+}
+
+/**
+ * Adjusts brightness (-100 to 100) and contrast (-100 to 100)
+ */
+export function applyBrightnessContrast(sourceCanvas, brightness = 0, contrast = 0) {
+  if (brightness === 0 && contrast === 0) {
+    return sourceCanvas;
+  }
+
+  const width = sourceCanvas.width;
+  const height = sourceCanvas.height;
+
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = width;
+  outputCanvas.height = height;
+  const ctx = outputCanvas.getContext('2d');
+
+  ctx.drawImage(sourceCanvas, 0, 0);
+  const imgData = ctx.getImageData(0, 0, width, height);
+  const data = imgData.data;
+
+  // Factor calculations
+  const b = brightness * 1.28; // -128 to 128
+  const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+  for (let i = 0; i < data.length; i += 4) {
+    let r = data[i];
+    let g = data[i + 1];
+    let bVal = data[i + 2];
+
+    // Apply contrast
+    r = factor * (r - 128) + 128;
+    g = factor * (g - 128) + 128;
+    bVal = factor * (bVal - 128) + 128;
+
+    // Apply brightness
+    r += b;
+    g += b;
+    bVal += b;
+
+    data[i] = Math.max(0, Math.min(255, r));
+    data[i + 1] = Math.max(0, Math.min(255, g));
+    data[i + 2] = Math.max(0, Math.min(255, bVal));
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  return outputCanvas;
 }
 
 /**
