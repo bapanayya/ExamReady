@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ExamReady - Competitive Exam Image & Document Toolkit</title>
+  <meta name="description" content="Prepare photos, signatures, thumb impressions, handwritten declarations, and PDFs matching official exam upload requirements. 100% private and on-device.">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.svg">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+  <!-- YouTube Channel Interactive Top Banner -->
+  <aside class="youtube-channel-banner" aria-label="Official YouTube Channel">
+    <div class="youtube-banner-container">
+      <div class="youtube-banner-left">
+        <a href="http://www.youtube.com/@TheCompetitiveEdge-b4z" target="_blank" rel="noopener noreferrer" class="youtube-logo-link" title="Visit The Competitive Edge on YouTube">
+          <img src="./assets/The-Competitive-Edge-Logo.jpg" alt="The Competitive Edge Channel Logo" class="youtube-banner-logo">
+        </a>
+        <div class="youtube-banner-info">
+          <div class="youtube-channel-title-row">
+            <a href="http://www.youtube.com/@TheCompetitiveEdge-b4z" target="_blank" rel="noopener noreferrer" class="youtube-channel-link">
+              <span class="channel-name">The Competitive Edge</span>
+            </a>
+            <span class="yt-badge">YouTube</span>
+          </div>
+          <p class="youtube-channel-desc">
+            One-stop destination for smart and effective competitive exam preparation! It is a complete package by it self for aspirants
+          </p>
+        </div>
+      </div>
+      <div class="youtube-banner-right">
+        <a href="http://www.youtube.com/@TheCompetitiveEdge-b4z" target="_blank" rel="noopener noreferrer" class="btn-youtube-subscribe" title="Subscribe to The Competitive Edge">
+          <svg class="yt-play-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span>Subscribe Channel</span>
+          <span class="bell-icon">🔔</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-title-row">
+        <img src="./assets/icons/icon-192.svg" alt="ExamReady Logo" class="brand-icon">
+        <h1 class="brand-title">ExamReady</h1>
+      </div>
+      <p class="brand-subtitle">Competitive Exam Image & Document Studio</p>
+    </div>
+    <div class="header-actions">
+      <span class="privacy-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        100% Free & Private (On-Device)
+      </span>
+      <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Step 1: Select Examination -->
+    <section class="card">
+      <h2 class="card-title">
+        <span class="step-num">1</span>
+        Select Target Examination
+      </h2>
+
+      <!-- Search Input with Live Dropdown -->
+      <div class="search-box-wrapper">
+        <input type="text" id="examSearchInput" class="search-input" placeholder="Search 100+ exams (e.g. UPSC, SSC, NEET, JEE, GATE, APPSC, IBPS)..." autocomplete="off" spellcheck="false">
+        <button id="searchClearBtn" class="search-clear-btn" title="Clear search text" type="button" style="display:none;">✕</button>
+        <!-- Dynamic Live Search Suggestions Dropdown -->
+        <div id="searchDropdown" class="search-dropdown" style="display:none;"></div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-pills" id="categoryPills">
+        <!-- Injected dynamically via app.js -->
+      </div>
+
+      <!-- Trending Quick Chips -->
+      <div class="trending-row">
+        <span class="trending-label">⚡ Popular:</span>
+        <button class="trending-chip" data-id="upsc-cse-civil-services">UPSC CSE</button>
+        <button class="trending-chip" data-id="ssc-cgl">SSC CGL</button>
+        <button class="trending-chip" data-id="nta-neet-ug">NEET UG (NTA)</button>
+        <button class="trending-chip" data-id="nta-jee-main">JEE Main (NTA)</button>
+        <button class="trending-chip" data-id="gate-exam">GATE (IIT)</button>
+        <button class="trending-chip" data-id="iit-jam">IIT JAM</button>
+        <button class="trending-chip" data-id="appsc-group1">APPSC Group 1</button>
+        <button class="trending-chip" data-id="appsc-group2">APPSC Group 2</button>
+        <button class="trending-chip" data-id="custom-spec">⚙️ Custom Preset</button>
+      </div>
+
+      <!-- Prominently Highlighted Selected Examination Hero Display -->
+      <div class="selected-exam-hero" id="selectedExamHero">
+        <div class="selected-hero-header">
+          <span class="hero-target-tag">ACTIVE TARGET EXAM</span>
+          <span class="hero-cat-badge" id="heroCategoryBadge">Central Govt</span>
+        </div>
+        <h3 class="hero-exam-title" id="heroExamTitle">UPSC Civil Services (CSE / IAS / IPS)</h3>
+        <div class="hero-meta-row" id="heroMetaRow">
+          <span class="hero-org" id="heroOrganizer">Union Public Service Commission</span>
+          <span class="hero-dot">•</span>
+          <span class="hero-source" id="heroSource">Official Guidelines</span>
+        </div>
+      </div>
+
+      <!-- Dedicated Custom / Manual Preset Controls -->
+      <div id="customPresetPanel" class="custom-preset-panel" style="display:none;">
+        <div class="custom-panel-header">
+          <div class="custom-header-title">
+            <span class="custom-icon">⚙️</span>
+            <div>
+              <h4 class="custom-title">Custom / Manual Preset Settings</h4>
+              <p class="custom-desc">Set target dimensions, aspect ratio, and file size range for any custom application requirement.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="custom-grid">
+          <!-- Dimensions -->
+          <div class="custom-field-group">
+            <label class="form-label">Target Dimensions (Width × Height)</label>
+            <div class="dim-inputs-row">
+              <div class="input-with-label">
+                <span class="input-prefix">W:</span>
+                <input type="number" id="customWidthInput" min="50" max="4000" value="350" step="10">
+                <span class="input-suffix">px</span>
+              </div>
+              <span class="dim-times">×</span>
+              <div class="input-with-label">
+                <span class="input-prefix">H:</span>
+                <input type="number" id="customHeightInput" min="50" max="4000" value="450" step="10">
+                <span class="input-suffix">px</span>
+              </div>
+            </div>
+            <!-- Quick Dimension Presets -->
+            <div class="quick-chips-wrap">
+              <button type="button" class="quick-dim-chip" data-w="350" data-h="450">Passport (350×450)</button>
+              <button type="button" class="quick-dim-chip" data-w="350" data-h="350">Square (350×350)</button>
+              <button type="button" class="quick-dim-chip" data-w="400" data-h="200">Signature (400×200)</button>
+              <button type="button" class="quick-dim-chip" data-w="560" data-h="160">Wide Sign (560×160)</button>
+              <button type="button" class="quick-dim-chip" data-w="480" data-h="640">GATE/JAM (480×640)</button>
+            </div>
+          </div>
+
+          <!-- Aspect Ratio Preset -->
+          <div class="custom-field-group">
+            <label class="form-label" for="customRatioSelect">Aspect Ratio Preset</label>
+            <select id="customRatioSelect" class="form-select">
+              <option value="custom">Match Dimensions (W : H)</option>
+              <option value="3.5:4.5">3.5 : 4.5 (Passport Photo)</option>
+              <option value="1:1">1 : 1 (Square Photo / Sign)</option>
+              <option value="2:1">2 : 1 (Standard Signature)</option>
+              <option value="7:3">7 : 3 (SSC / Police Signature)</option>
+              <option value="3.5:1">3.5 : 1 (GATE / IIT JAM Signature)</option>
+              <option value="4:3">4 : 3 (Standard)</option>
+              <option value="16:9">16 : 9 (Wide)</option>
+            </select>
+          </div>
+
+          <!-- File Size Limits -->
+          <div class="custom-field-group">
+            <label class="form-label">File Size Boundaries (KB)</label>
+            <div class="dim-inputs-row">
+              <div class="input-with-label">
+                <span class="input-prefix">Min:</span>
+                <input type="number" id="customMinKBInput" min="1" max="5000" value="20" step="5">
+                <span class="input-suffix">KB</span>
+              </div>
+              <span class="dim-times">to</span>
+              <div class="input-with-label">
+                <span class="input-prefix">Max:</span>
+                <input type="number" id="customMaxKBInput" min="5" max="10000" value="50" step="5">
+                <span class="input-suffix">KB</span>
+              </div>
+            </div>
+            <!-- Quick Size Presets -->
+            <div class="quick-chips-wrap">
+              <button type="button" class="quick-kb-chip" data-min="10" data-max="20">10 - 20 KB</button>
+              <button type="button" class="quick-kb-chip" data-min="20" data-max="50">20 - 50 KB</button>
+              <button type="button" class="quick-kb-chip" data-min="10" data-max="200">10 - 200 KB</button>
+              <button type="button" class="quick-kb-chip" data-min="50" data-max="300">50 - 300 KB</button>
+              <button type="button" class="quick-kb-chip" data-min="100" data-max="500">100 - 500 KB</button>
+            </div>
+          </div>
+
+          <!-- Output Format -->
+          <div class="custom-field-group">
+            <label class="form-label" for="customFormatSelect">Output Format</label>
+            <select id="customFormatSelect" class="form-select">
+              <option value="image/jpeg">JPG / JPEG (Universal Exam Standard)</option>
+              <option value="image/png">PNG (Lossless)</option>
+              <option value="application/pdf">PDF (Certificate Document)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Select Document Type -->
+      <div style="margin-top: 1rem;">
+        <label class="form-label">Document Type to Prepare</label>
+        <div class="doc-tabs" id="docTypeTabs">
+          <!-- Populated dynamically via app.js -->
+        </div>
+      </div>
+
+      <!-- Dynamic Specification Requirements Banner -->
+      <div class="spec-box" id="specBanner">
+        <!-- Populated dynamically via app.js -->
+      </div>
+    </section>
+
+    <!-- Step 2: Upload or Snap -->
+    <section class="card">
+      <h2 class="card-title">
+        <span class="step-num">2</span>
+        Upload or Capture Image
+      </h2>
+      
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-content">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span class="upload-title">Click to browse or drop file here</span>
+          <span class="upload-hint">Supports JPG, PNG, WEBP & HEIC (iPhone photos) from phone camera or gallery</span>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="button" id="browseFileBtn">
+              📁 Choose File
+            </button>
+            <button class="btn btn-secondary" type="button" id="openCameraBtn">
+              📷 Take Photo
+            </button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*,application/pdf" style="display:none;">
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+    </section>
+
+    <!-- Step 3: Interactive Crop & Adjust Studio -->
+    <section class="card" id="editorCard" style="display:none;">
+      <div class="cropper-card-header">
+        <h2 class="card-title" style="margin-bottom:0;">
+          <span class="step-num">3</span>
+          Crop & Adjust
+        </h2>
+        <div class="cropper-rotate-btns">
+          <button id="rotateLeftBtn" class="btn btn-secondary" title="Rotate 90° Left" style="padding:0.4rem 0.75rem;">
+            ↺ Left
+          </button>
+          <button id="rotateRightBtn" class="btn btn-secondary" title="Rotate 90° Right" style="padding:0.4rem 0.75rem;">
+            ↻ Right
+          </button>
+        </div>
+      </div>
+
+      <!-- Crop Mode Selector: Already Cropped vs Full Page Scan -->
+      <div class="crop-mode-bar" id="cropModeBar" style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+        <button id="modeFitBtn" class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+          🖼️ Fit Entire Image (Pad White)
+        </button>
+        <button id="modeCropBtn" class="btn btn-primary" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+          ✂️ Crop Region from Page
+        </button>
+      </div>
+
+      <!-- Before vs After Comparison Card with Live Processed Output Thumbnail -->
+      <div class="comparison-card">
+        <div class="comparison-box">
+          <span class="title">Original Upload</span>
+          <span class="stat" id="origStats">0 KB • 0 × 0 px</span>
+        </div>
+        <div class="comparison-box" style="border-color:var(--primary); background:var(--primary-light);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
+            <span class="title" style="color:var(--primary); font-weight:700;">Live Processed Output</span>
+            <span class="stat" id="procStats" style="color:var(--primary); font-weight:700;">0 KB • 0 × 0 px</span>
+          </div>
+          <div id="processedThumbWrapper" style="display:flex; align-items:center; gap:0.75rem; margin-top:0.4rem;">
+            <img id="procOutputThumb" alt="Processed Output Preview" style="height:70px; width:auto; max-width:110px; object-fit:contain; border-radius:5px; border:1.5px solid var(--border-color); background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+            <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.25;">
+              <span style="font-weight:700; color:var(--text-main); display:block;">Live File Preview</span>
+              Brightness, contrast, stamps & filters render in real-time
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-container">
+        <!-- Interactive Cropper Mount Area -->
+        <div>
+          <div class="preview-wrapper">
+            <div id="cropperMount"></div>
+            <!-- Document PDF Preview (Used when docType === 'document') -->
+            <div id="pdfDocumentPreview" style="display:none; text-align:center; color:#fff;">
+              <img id="pdfDocThumb" style="max-width:100%; max-height:280px; border-radius:6px; box-shadow:0 4px 8px rgba(0,0,0,0.3); background:#fff;" alt="Document Page">
+              <p style="margin-top:0.5rem; font-size:0.8rem; color:#94a3b8;">Full document fitted onto standard A4 layout</p>
+            </div>
+          </div>
+          <div class="cropper-toolbar">
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button id="faceGuideToggleBtn" class="btn btn-secondary" title="Toggle 75-80% Face Area Guide" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
+                👤 Face Guide
+              </button>
+              <button id="resetCropBtn" class="btn btn-secondary" title="Reset Crop Selection to Full Image" style="font-size:0.8rem; padding:0.45rem 0.8rem;">
+                ↺ Reset Selection
+              </button>
+            </div>
+            <button id="applyCropBtn" class="btn btn-primary" style="font-size:0.85rem; padding:0.5rem 1.2rem; font-weight:700;">
+              ✨ Apply & Optimize
+            </button>
+          </div>
+        </div>
+
+        <!-- Tool Settings Panel -->
+        <div class="tools-panel">
+
+          <!-- Image Adjustments (Brightness / Contrast) -->
+          <div class="tool-group">
+            <div class="tool-header">
+              <span class="tool-title">🎛️ Image Adjustments</span>
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem;">
+              <label class="form-label" for="brightnessSlider">
+                Brightness: <span id="brightnessVal">0</span>
+              </label>
+              <input type="range" id="brightnessSlider" min="-50" max="50" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contrastSlider">
+                Contrast: <span id="contrastVal">0</span>
+              </label>
+              <input type="range" id="contrastSlider" min="-50" max="50" value="0">
+            </div>
+          </div>
+
+          <!-- Photo Tool: DOP (Date of Photo) Stamper -->
+          <div class="tool-group" id="dopToolGroup" style="display:none;">
+            <div class="tool-header">
+              <span class="tool-title">
+                📅 Add Name & Date of Photo (DOP)
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="dopToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">
+              Mandatory for UPSC, SSC, and state exams. Places an official bottom white banner.
+            </p>
+            <div class="form-group" style="margin-bottom:0.4rem;">
+              <label class="form-label" for="applicantName">Candidate Full Name (in capitals)</label>
+              <input type="text" id="applicantName" placeholder="e.g. RAHUL SHARMA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="photoDate">Date of Photograph</label>
+              <input type="date" id="photoDate">
+            </div>
+          </div>
+
+          <!-- Signature Tool: Paper Shadow & Ink Cleaner -->
+          <div class="tool-group" id="sigToolGroup" style="display:none;">
+            <div class="tool-header">
+              <span class="tool-title">
+                ✨ Clean Paper Shadows & Boost Ink
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="sigCleanToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">
+              Converts grayish or shadowy phone photos into clean ink on pure white paper.
+            </p>
+            <div class="form-group" style="margin-bottom:0.6rem;">
+              <label class="form-label" for="sigThreshold">
+                Shadow Removal Strength: <span id="sigThresholdVal">175</span>
+              </label>
+              <input type="range" id="sigThreshold" min="100" max="230" value="175" style="width:100%;">
+            </div>
+            <div class="tool-header" style="border-top:1px solid var(--border-color); padding-top:0.5rem; margin-top:0.4rem;">
+              <span class="tool-title" style="font-size:0.8rem;">
+                📚 Stack 3 Signatures Vertically
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="stackSigToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <span style="font-size:0.7rem; color:var(--text-muted);">Required by specific High Court & Judiciary application notices.</span>
+          </div>
+
+          <!-- Thumb Impression Tool: Ridge Contrast Booster -->
+          <div class="tool-group" id="thumbToolGroup" style="display:none;">
+            <div class="tool-header">
+              <span class="tool-title">
+                👆 Ridge Contrast Booster
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="thumbCleanToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted);">
+              Sharpens delicate ridge patterns and whitens background paper to prevent biometric rejection.
+            </p>
+          </div>
+
+          <!-- PDF Document Tool -->
+          <div class="tool-group" id="pdfToolGroup" style="display:none;">
+            <span class="tool-title">📄 Certificate to PDF Settings</span>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+              Embeds the entire document cleanly onto standard A4 layout. No forced cropping is applied.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 4: Live Validation Report -->
+    <section class="card validation-card" id="validationCard" style="display:none;">
+      <div class="validation-header">
+        <h2 class="card-title" style="margin-bottom:0;">
+          <span class="step-num">4</span>
+          Official Compliance Validation
+        </h2>
+        <span id="statusBadge" class="badge badge-pass">✓ PASS</span>
+      </div>
+
+      <p id="validationSummary" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;"></p>
+
+      <table class="checks-table">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th>Required</th>
+            <th>Your File</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="checksTableBody">
+          <!-- Populated dynamically via app.js -->
+        </tbody>
+      </table>
+
+      <!-- Auto Fix Button if adjustment is needed -->
+      <div id="autoFixBox" class="auto-fix-box" style="display:none;">
+        <span style="font-size:0.85rem; color:#92400e;">
+          ⚠️ <strong>Adjustment needed:</strong> File dimensions or aspect ratio do not match this exam.
+        </span>
+        <button id="autoFixBtn" class="btn btn-primary" style="font-size:0.8rem; padding:0.45rem 1rem;">
+          ✨ Auto-Crop & Fit to Exam Size
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 5: Download & Action Bar -->
+    <section class="action-bar" id="actionBar" style="display:none;">
+      <div class="download-btn-group">
+        <button id="downloadBtn" class="btn btn-success">
+          📥 Download Prepared File
+        </button>
+        <button id="viewPdfBtn" class="btn btn-secondary" style="display:none;">
+          👁️ Preview PDF
+        </button>
+        <button id="shareBtn" class="btn btn-secondary">
+          🔗 Share / Send to Phone
+        </button>
+      </div>
+      <p style="font-size:0.75rem; color:var(--text-muted);">
+        Auto-renamed for error-free portal upload. Ready for direct submission.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Live Camera Modal (for desktop webcams & instant photo snap) -->
+  <div id="cameraModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--bg-card); border-radius:12px; padding:1.25rem; max-width:500px; width:100%; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
+      <h3 style="margin-bottom:0.75rem; font-size:1.1rem;">📷 Live Camera Capture</h3>
+      <video id="webcamVideo" autoplay playsinline style="width:100%; border-radius:8px; background:#000; max-height:360px; object-fit:cover;"></video>
+      <div style="display:flex; justify-content:center; gap:0.75rem; margin-top:1rem;">
+        <button id="closeCameraModalBtn" class="btn btn-secondary">Cancel</button>
+        <button id="snapPhotoBtn" class="btn btn-primary" style="font-weight:bold;">📸 Capture Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <p><strong>ExamReady</strong> • Privacy-First Competitive Exam Image & Document Toolkit</p>
+    <p>All processing is executed entirely on your device. No photos or documents are ever uploaded to any server.</p>
+  </footer>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

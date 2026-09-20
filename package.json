@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node tests/exams-schema.test.js && node tests/validator.test.js && node tests/compressor.test.js && node tests/pdf-builder.test.js && node tests/user-requirements.test.js",
-    "serve": "node scripts/serve.js"
+    "serve": "node scripts/serve.js",
+    "sync:android": "node scripts/sync-android.js"
   },
   "keywords": [
     "competitive-exams",
