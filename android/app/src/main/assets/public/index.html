@@ -60,6 +60,10 @@
         </svg>
         100% Free & Private (On-Device)
       </span>
+      <button id="installAppBtn" class="btn-install" title="Install ExamReady App" type="button">
+        <span class="install-icon">📲</span>
+        <span id="installBtnText">Install App</span>
+      </button>
       <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"/>
@@ -501,6 +505,41 @@
       <div style="display:flex; justify-content:center; gap:0.75rem; margin-top:1rem;">
         <button id="closeCameraModalBtn" class="btn btn-secondary">Cancel</button>
         <button id="snapPhotoBtn" class="btn btn-primary" style="font-weight:bold;">📸 Capture Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install Help Modal -->
+  <div id="installHelpModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; align-items:center; justify-content:center; padding:1rem;">
+    <div class="install-modal-card" style="background:var(--bg-card); border-radius:12px; padding:1.25rem; max-width:480px; width:100%; box-shadow:0 15px 35px rgba(0,0,0,0.4); border:1px solid var(--border-color);">
+      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.65rem;">
+        <h3 style="margin:0; font-size:1.15rem; color:var(--text-main); display:flex; align-items:center; gap:0.5rem;">
+          <span>📲</span> Install ExamReady App
+        </h3>
+        <button id="closeInstallModalBtn" class="btn-icon" title="Close" type="button" style="font-size:1.1rem;">✕</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.85rem; margin:1rem 0;">
+        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">📱 Android (Chrome / Edge)</div>
+          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
+            Tap the <strong>three dots (⋮)</strong> in the top-right corner of Chrome, then tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+          </p>
+        </div>
+        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">💻 Desktop (Windows / Mac / Linux)</div>
+          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
+            Click the <strong>Install icon (🖥️)</strong> on the right side of the browser address bar, or open Menu ⋮ &rarr; <strong>"Install ExamReady"</strong>.
+          </p>
+        </div>
+        <div style="background:var(--bg-main); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-weight:700; color:var(--primary); margin-bottom:0.25rem;">🍏 iPhone / iPad (Safari)</div>
+          <p style="margin:0; font-size:0.85rem; color:var(--text-main); line-height:1.4;">
+            Tap the <strong>Share button (⎋)</strong> at the bottom of Safari, scroll down, and tap <strong>"Add to Home Screen"</strong>.
+          </p>
+        </div>
+      </div>
+      <div>
+        <button id="confirmInstallCloseBtn" class="btn btn-primary" style="width:100%; font-weight:700;" type="button">Got it!</button>
       </div>
     </div>
   </div>

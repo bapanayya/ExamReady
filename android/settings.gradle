@@ -1,2 +1,4 @@
 include ':app'
 rootProject.name = 'ExamReady'
+
+apply from: 'capacitor.settings.gradle'

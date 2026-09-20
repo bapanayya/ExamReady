@@ -48,6 +48,7 @@ class ExamToolkitApp {
   async init() {
     await this.loadData();
     this.registerServiceWorker();
+    this.initInstallPrompt();
     this.renderCategoryPills();
     this.bindEvents();
     this.filterAndRenderExams();
@@ -80,6 +81,54 @@ class ExamToolkitApp {
         });
       });
     }
+  }
+
+  initInstallPrompt() {
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installAppBtn');
+    const installBtnText = document.getElementById('installBtnText');
+    const installModal = document.getElementById('installHelpModal');
+    const closeBtn = document.getElementById('closeInstallModalBtn');
+    const confirmBtn = document.getElementById('confirmInstallCloseBtn');
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (installBtnText) {
+      installBtnText.textContent = isMobile ? 'Install Mobile App' : 'Install Desktop App';
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) installBtn.style.display = 'inline-flex';
+    });
+
+    installBtn?.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          deferredPrompt = null;
+          if (installBtn) installBtn.style.display = 'none';
+        }
+      } else {
+        if (installModal) installModal.style.display = 'flex';
+      }
+    });
+
+    const hideModal = () => {
+      if (installModal) installModal.style.display = 'none';
+    };
+
+    closeBtn?.addEventListener('click', hideModal);
+    confirmBtn?.addEventListener('click', hideModal);
+    installModal?.addEventListener('click', (e) => {
+      if (e.target === installModal) hideModal();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      if (installBtn) installBtn.style.display = 'none';
+    });
   }
 
   renderCategoryPills() {
