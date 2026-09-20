@@ -71,12 +71,12 @@ if (hasLogoFile && hasYtLink && hasBanner) {
   allPassed = false;
 }
 
-// Req 1 & 2: Search input padding & dynamic dropdown
-const hasPadding = css.includes('3.4rem');
+// Req 1 & 2: Search input padding & dynamic dropdown (lens removed as per request)
+const hasSearchInput = css.includes('.search-input');
 const hasDropdown = html.includes('id="searchDropdown"');
 const hasClearBtn = html.includes('id="searchClearBtn"');
-if (hasPadding && hasDropdown && hasClearBtn) {
-  console.log('   ✅ Req 1 & 2 PASSED: Search padding prevents overlap; dynamic suggestions dropdown present');
+if (hasSearchInput && hasDropdown && hasClearBtn) {
+  console.log('   ✅ Req 1 & 2 PASSED: Search input styled properly; dynamic suggestions dropdown present');
 } else {
   console.error('   ❌ Req 1 & 2 FAILED');
   allPassed = false;

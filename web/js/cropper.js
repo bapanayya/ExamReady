@@ -34,6 +34,8 @@ export class InteractiveCropper {
 
     this.showFaceGuide = false;
     this.lockRatio = true;
+    this.brightness = 0;
+    this.contrast = 0;
 
     this.initDOM();
   }
@@ -77,8 +79,19 @@ export class InteractiveCropper {
     this.imgHeight = isPerp ? image.naturalWidth : image.naturalHeight;
 
     this.renderBaseCanvas();
+    this.setFilters(this.brightness, this.contrast);
     this.resetCropToAspectRatio();
     this.renderCropBox();
+  }
+
+  setFilters(brightness = 0, contrast = 0) {
+    this.brightness = brightness;
+    this.contrast = contrast;
+    if (this.canvas) {
+      const b = 100 + brightness;
+      const c = 100 + contrast;
+      this.canvas.style.filter = `brightness(${b}%) contrast(${c}%)`;
+    }
   }
 
   setMode(mode) {
@@ -112,6 +125,7 @@ export class InteractiveCropper {
     this.imgHeight = isPerp ? this.sourceImage.naturalWidth : this.sourceImage.naturalHeight;
 
     this.renderBaseCanvas();
+    this.setFilters(this.brightness, this.contrast);
     if (this.mode === 'fit') {
       this.crop = { x: 0, y: 0, width: this.imgWidth, height: this.imgHeight };
     } else {

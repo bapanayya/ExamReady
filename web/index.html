@@ -28,7 +28,7 @@
             <span class="yt-badge">YouTube</span>
           </div>
           <p class="youtube-channel-desc">
-            Official Channel: Master Competitive Exam Guidelines, Document Upload Rules & Step-by-Step Prep
+            One-stop destination for smart and effective competitive exam preparation! It is a complete package by it self for aspirants
           </p>
         </div>
       </div>
@@ -81,10 +81,6 @@
 
       <!-- Search Input with Live Dropdown -->
       <div class="search-box-wrapper">
-        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
         <input type="text" id="examSearchInput" class="search-input" placeholder="Search 100+ exams (e.g. UPSC, SSC, NEET, JEE, GATE, APPSC, IBPS)..." autocomplete="off" spellcheck="false">
         <button id="searchClearBtn" class="search-clear-btn" title="Clear search text" type="button" style="display:none;">✕</button>
         <!-- Dynamic Live Search Suggestions Dropdown -->
@@ -121,14 +117,6 @@
           <span class="hero-org" id="heroOrganizer">Union Public Service Commission</span>
           <span class="hero-dot">•</span>
           <span class="hero-source" id="heroSource">Official Guidelines</span>
-        </div>
-      </div>
-
-      <!-- Select Dropdown -->
-      <div class="select-row">
-        <div class="form-group">
-          <label class="form-label" for="examSelect">Choose from List / Category</label>
-          <select id="examSelect" class="exam-select-input"></select>
         </div>
       </div>
 
@@ -295,15 +283,24 @@
         </button>
       </div>
 
-      <!-- Before vs After Comparison Card -->
+      <!-- Before vs After Comparison Card with Live Processed Output Thumbnail -->
       <div class="comparison-card">
         <div class="comparison-box">
           <span class="title">Original Upload</span>
           <span class="stat" id="origStats">0 KB • 0 × 0 px</span>
         </div>
-        <div class="comparison-box">
-          <span class="title">Prescribed Output</span>
-          <span class="stat" id="procStats" style="color:var(--primary);">0 KB • 0 × 0 px</span>
+        <div class="comparison-box" style="border-color:var(--primary); background:var(--primary-light);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.25rem;">
+            <span class="title" style="color:var(--primary); font-weight:700;">Live Processed Output</span>
+            <span class="stat" id="procStats" style="color:var(--primary); font-weight:700;">0 KB • 0 × 0 px</span>
+          </div>
+          <div id="processedThumbWrapper" style="display:flex; align-items:center; gap:0.75rem; margin-top:0.4rem;">
+            <img id="procOutputThumb" alt="Processed Output Preview" style="height:70px; width:auto; max-width:110px; object-fit:contain; border-radius:5px; border:1.5px solid var(--border-color); background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+            <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.25;">
+              <span style="font-weight:700; color:var(--text-main); display:block;">Live File Preview</span>
+              Brightness, contrast, stamps & filters render in real-time
+            </div>
+          </div>
         </div>
       </div>
 

@@ -212,6 +212,30 @@ class ExamToolkitApp {
     });
   }
 
+  filterAndRenderExams() {
+    let filtered = this.exams;
+
+    if (this.selectedCategory && this.selectedCategory !== 'all') {
+      filtered = filtered.filter(e => e.category === this.selectedCategory);
+    }
+
+    if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        (e.shortName && e.shortName.toLowerCase().includes(q)) ||
+        (e.organizer && e.organizer.toLowerCase().includes(q)) ||
+        (e.category && e.category.toLowerCase().includes(q))
+      );
+    }
+
+    if (filtered.length > 0) {
+      if (!this.currentExam || !filtered.some(e => e.id === this.currentExam.id)) {
+        this.selectExam(filtered[0].id);
+      }
+    }
+  }
+
   selectExam(examId) {
     this.currentExam = this.exams.find(e => e.id === examId) || this.exams[0];
     const examSelect = document.getElementById('examSelect');
@@ -721,6 +745,9 @@ class ExamToolkitApp {
     brightnessSlider?.addEventListener('input', (e) => {
       this.settings.brightness = parseInt(e.target.value, 10);
       if (brightnessVal) brightnessVal.textContent = e.target.value;
+      if (this.cropper) {
+        this.cropper.setFilters(this.settings.brightness, this.settings.contrast);
+      }
       if (this.currentDocType === 'document') {
         this.processPdfDocument(this.getCurrentSpec());
       } else {
@@ -731,6 +758,9 @@ class ExamToolkitApp {
     contrastSlider?.addEventListener('input', (e) => {
       this.settings.contrast = parseInt(e.target.value, 10);
       if (contrastVal) contrastVal.textContent = e.target.value;
+      if (this.cropper) {
+        this.cropper.setFilters(this.settings.brightness, this.settings.contrast);
+      }
       if (this.currentDocType === 'document') {
         this.processPdfDocument(this.getCurrentSpec());
       } else {
@@ -890,6 +920,7 @@ class ExamToolkitApp {
 
         this.cropper.setImage(img, targetW, targetH, 0);
         this.cropper.setMode(this.cropMode);
+        this.cropper.setFilters(this.settings.brightness, this.settings.contrast);
 
         const pdfThumb = document.getElementById('pdfDocThumb');
         if (pdfThumb) pdfThumb.src = img.src;
@@ -959,6 +990,11 @@ class ExamToolkitApp {
 
     this.processedBlob = compressRes.blob;
     this.processedDataUrl = URL.createObjectURL(this.processedBlob);
+
+    const procThumb = document.getElementById('procOutputThumb');
+    if (procThumb && this.processedDataUrl) {
+      procThumb.src = this.processedDataUrl;
+    }
 
     const procStats = document.getElementById('procStats');
     if (procStats) {
