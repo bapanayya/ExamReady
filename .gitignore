@@ -15,3 +15,6 @@ android/capacitor-cordova-android-plugins/
 # OS files
 .DS_Store
 Thumbs.db
+
+geotag-studio/
+GeoTag-Desktop.bat
