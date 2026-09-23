@@ -53,6 +53,93 @@ class ExamToolkitApp {
     this.bindEvents();
     this.filterAndRenderExams();
     this.selectExam('ssc-cgl');
+
+    const params = new URLSearchParams(window.location.search);
+    const ssMode = params.get('screenshotMode');
+    if (ssMode) {
+      setTimeout(() => this.setupScreenshotMode(ssMode), 100);
+    }
+  }
+
+  setupScreenshotMode(mode) {
+    if (mode === '1') {
+      this.selectExam('ssc-cgl');
+      window.scrollTo(0, 0);
+    } else if (mode === '2') {
+      this.selectExam('upsc-cse-civil-services');
+      this.selectDocType('photo');
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 500;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 500);
+      grad.addColorStop(0, '#e0f2fe');
+      grad.addColorStop(1, '#bae6fd');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 400, 500);
+      ctx.fillStyle = '#1e3a8a';
+      ctx.beginPath();
+      ctx.arc(200, 180, 75, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(200, 390, 150, 130, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(175, 290);
+      ctx.lineTo(200, 350);
+      ctx.lineTo(225, 290);
+      ctx.fill();
+      canvas.toBlob((blob) => {
+        const file = new File([blob], 'upsc_passport_sample.jpg', { type: 'image/jpeg' });
+        this.handleFileUpload(file);
+        setTimeout(() => {
+          const dopCheck = document.getElementById('dopToggle');
+          const nameInput = document.getElementById('applicantName');
+          const dateInput = document.getElementById('photoDate');
+          if (dopCheck) { dopCheck.checked = true; this.settings.dopEnabled = true; }
+          if (nameInput) { nameInput.value = 'K. BAPANAYYA'; this.settings.applicantName = 'K. BAPANAYYA'; }
+          if (dateInput) { dateInput.value = '2026-09-22'; this.settings.photoDate = '2026-09-22'; }
+          this.processImage();
+          const editor = document.getElementById('editorCard');
+          if (editor) editor.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }, 150);
+      }, 'image/jpeg', 0.95);
+    } else if (mode === '3') {
+      this.selectExam('appsc-group1');
+      this.selectDocType('signature');
+      const canvas = document.createElement('canvas');
+      canvas.width = 500;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 500, 200);
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(70, 110);
+      ctx.bezierCurveTo(100, 40, 130, 40, 160, 100);
+      ctx.bezierCurveTo(180, 140, 220, 60, 260, 95);
+      ctx.bezierCurveTo(290, 115, 320, 75, 360, 105);
+      ctx.bezierCurveTo(390, 125, 420, 85, 445, 115);
+      ctx.stroke();
+      canvas.toBlob((blob) => {
+        const file = new File([blob], 'appsc_signature_sample.jpg', { type: 'image/jpeg' });
+        this.handleFileUpload(file);
+        setTimeout(() => {
+          const valCard = document.getElementById('validationCard');
+          if (valCard) valCard.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }, 150);
+      }, 'image/jpeg', 0.95);
+    } else if (mode === '4') {
+      this.selectExam('custom-spec');
+      const customPanel = document.getElementById('customPresetPanel');
+      if (customPanel) {
+        customPanel.style.display = 'block';
+        customPanel.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+    }
   }
 
   async loadData() {
