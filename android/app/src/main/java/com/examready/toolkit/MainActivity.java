@@ -75,7 +75,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (pendingCameraFile != null) {
             outState.putString(KEY_PENDING_CAMERA, pendingCameraFile.getAbsolutePath());
