@@ -1009,6 +1009,11 @@ class ExamToolkitApp {
   }
 
   openCamera() {
+    if (window.AndroidBridge && window.AndroidBridge.openCamera) {
+      window.AndroidBridge.openCamera();
+      return;
+    }
+
     const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     if (isMobile) {
@@ -1338,6 +1343,12 @@ class ExamToolkitApp {
     const ext = (spec?.format === 'application/pdf' || this.currentDocType === 'document') ? 'pdf' : 'jpg';
     const examSlug = (this.currentExam?.shortName || 'Exam').replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `${examSlug}_${this.currentDocType}_prepared.${ext}`;
+    const mime = ext === 'pdf' ? 'application/pdf' : 'image/jpeg';
+
+    if (window.AndroidBridge && window.AndroidBridge.saveFile) {
+      window.AndroidBridge.saveFile(this.processedDataUrl, filename, mime);
+      return;
+    }
 
     const a = document.createElement('a');
     a.href = this.processedDataUrl;
@@ -1348,14 +1359,24 @@ class ExamToolkitApp {
   }
 
   async shareFile() {
-    if (!this.processedBlob || !navigator.share) {
+    if (!this.processedBlob) return;
+    const spec = this.getCurrentSpec();
+    const ext = (spec?.format === 'application/pdf' || this.currentDocType === 'document') ? 'pdf' : 'jpg';
+    const examSlug = (this.currentExam?.shortName || 'Exam').replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `${examSlug}_${this.currentDocType}_prepared.${ext}`;
+    const mime = ext === 'pdf' ? 'application/pdf' : 'image/jpeg';
+
+    if (window.AndroidBridge && window.AndroidBridge.shareFile) {
+      window.AndroidBridge.shareFile(this.processedDataUrl, filename, mime);
+      return;
+    }
+
+    if (!navigator.share) {
       alert('Direct sharing is not supported on this browser. Please use the Download button.');
       return;
     }
     try {
-      const spec = this.getCurrentSpec();
-      const ext = spec?.format === 'application/pdf' ? 'pdf' : 'jpg';
-      const file = new File([this.processedBlob], `exam_${this.currentDocType}.${ext}`, { type: this.processedBlob.type });
+      const file = new File([this.processedBlob], filename, { type: this.processedBlob.type });
       await navigator.share({
         title: `${this.currentExam?.name} ${this.currentDocType}`,
         text: `Prepared ${this.currentDocType} according to ${this.currentExam?.name} rules.`,
@@ -1372,4 +1393,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const app = new ExamToolkitApp();
   app.init();
   window.__examToolkitApp = app;
+
+  // Bridge callback for native camera capture
+  window.__handleNativePhoto = (dataUrl) => {
+    fetch(dataUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], `camera_capture_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        app.handleFileUpload(file);
+      })
+      .catch(err => {
+        console.error('Error processing native photo capture:', err);
+        alert('Could not load captured photo.');
+      });
+  };
 });

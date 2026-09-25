@@ -24,7 +24,7 @@ jobs:
           node-version: 20
 
       - name: Setup Java JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -82,16 +82,19 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: v1.0.0
-          name: "ExamReady Android App v1.0.0 (Official Release)"
+          tag_name: v1.0.3
+          name: "ExamReady Android App v1.0.3 (Official Release)"
           body: |
-            ### 📱 ExamReady Official Android Application
+            ### 📱 ExamReady Official Android Application (v1.0.3)
+            - **Native Android Bridge**: Full native Downloads to phone storage via modern MediaStore (zero sensitive permissions required).
+            - **Native Share Sheet**: Native Android sharing drawer support for WhatsApp, Telegram, Gmail, Drive, etc.
+            - **Native Camera Capture**: Direct integration with device camera for crisp photo uploads.
             - **Official Logo**: Embedded with "The Competitive Edge" golden shield logo
             - **37+ Competitive Exams**: SSC, UPSC, IBPS, NTA (NEET/JEE/CUET), IITs (GATE/JAM), State PSCs (APPSC)
             - **Features**: Auto-Crop & Fit, Intelligent KB Optimizer, Certificate to PDF, 100% Free & Offline
             - **Direct Download**:
               - Tap `ExamReady.apk` to install directly on your Android phone.
-              - `ExamReady.aab` is the official Google Play Store Android App Bundle.
+              - `ExamReady.aab` is the official Google Play Store Android App Bundle (signed with production upload keystore).
           files: |
             ExamReady.apk
             ExamReady.aab
