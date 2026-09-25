@@ -82,13 +82,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: v1.0.3
-          name: "ExamReady Android App v1.0.3 (Official Release)"
+          tag_name: v1.0.4
+          name: "ExamReady Android App v1.0.4 (Official Release)"
           body: |
-            ### 📱 ExamReady Official Android Application (v1.0.3)
-            - **Native Android Bridge**: Full native Downloads to phone storage via modern MediaStore (zero sensitive permissions required).
-            - **Native Share Sheet**: Native Android sharing drawer support for WhatsApp, Telegram, Gmail, Drive, etc.
-            - **Native Camera Capture**: Direct integration with device camera for crisp photo uploads.
+            ### 📱 ExamReady Official Android Application (v1.0.4)
+            - **Fixed Base64 Encoding**: Clean native Downloads and Sharing to WhatsApp, Telegram, Gmail, and Drive.
+            - **Optimized Camera Capture**: Automatically downsamples and orients captured photos, placing them smoothly into the frame.
+            - **Fluid Typing & Search**: Instant keyboard responsiveness without typing lag or interruption.
+            - **Clean UI**: Removed redundant install tab for streamlined user experience.
             - **Official Logo**: Embedded with "The Competitive Edge" golden shield logo
             - **37+ Competitive Exams**: SSC, UPSC, IBPS, NTA (NEET/JEE/CUET), IITs (GATE/JAM), State PSCs (APPSC)
             - **Features**: Auto-Crop & Fit, Intelligent KB Optimizer, Certificate to PDF, 100% Free & Offline

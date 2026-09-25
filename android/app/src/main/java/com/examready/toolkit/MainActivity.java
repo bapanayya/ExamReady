@@ -2,8 +2,14 @@ package com.examready.toolkit;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,19 +31,20 @@ import com.getcapacitor.BridgeActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 
 public class MainActivity extends BridgeActivity {
 
     private static final String TAG = "ExamReadyNative";
+    private static final String PREFS_NAME = "ExamReadyPrefs";
+    private static final String KEY_PENDING_CAMERA = "pending_camera_path";
     private static final int PERMISSION_REQ_CAMERA = 1001;
     private static final int REQ_CAMERA_CAPTURE = 1002;
 
     private File pendingCameraFile;
     private Uri pendingCameraUri;
+    private String latestCapturedPhotoDataUrl = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +56,29 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "NativeAppBridge successfully registered into WebView");
         } catch (Exception e) {
             Log.e(TAG, "Error adding JavascriptInterface", e);
+        }
+
+        // Restore pending camera file if activity was recreated
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PENDING_CAMERA)) {
+            String path = savedInstanceState.getString(KEY_PENDING_CAMERA);
+            if (path != null) {
+                pendingCameraFile = new File(path);
+            }
+        }
+        if (pendingCameraFile == null) {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String path = prefs.getString(KEY_PENDING_CAMERA, null);
+            if (path != null) {
+                pendingCameraFile = new File(path);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (pendingCameraFile != null) {
+            outState.putString(KEY_PENDING_CAMERA, pendingCameraFile.getAbsolutePath());
         }
     }
 
@@ -64,6 +94,13 @@ public class MainActivity extends BridgeActivity {
                 cacheDir.mkdirs();
             }
             pendingCameraFile = new File(cacheDir, "camera_" + System.currentTimeMillis() + ".jpg");
+            
+            // Persist path so activity destruction doesn't lose it
+            getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_PENDING_CAMERA, pendingCameraFile.getAbsolutePath())
+                .apply();
+
             pendingCameraUri = FileProvider.getUriForFile(
                 this,
                 getPackageName() + ".fileprovider",
@@ -85,29 +122,25 @@ public class MainActivity extends BridgeActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQ_CAMERA_CAPTURE && resultCode == RESULT_OK) {
+            if (pendingCameraFile == null) {
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                String path = prefs.getString(KEY_PENDING_CAMERA, null);
+                if (path != null) {
+                    pendingCameraFile = new File(path);
+                }
+            }
+
             if (pendingCameraFile != null && pendingCameraFile.exists() && pendingCameraFile.length() > 0) {
                 try {
-                    byte[] bytes;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        bytes = Files.readAllBytes(pendingCameraFile.toPath());
+                    String dataUrl = processAndCompressCapturedPhoto(pendingCameraFile);
+                    if (dataUrl != null) {
+                        latestCapturedPhotoDataUrl = dataUrl;
+                        String escapedUrl = dataUrl.replace("'", "\\'");
+                        String js = "if (window.__handleNativePhoto) { window.__handleNativePhoto('" + escapedUrl + "'); }";
+                        getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(js, null));
                     } else {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        try (FileInputStream fis = new FileInputStream(pendingCameraFile)) {
-                            byte[] buffer = new byte[8192];
-                            int read;
-                            while ((read = fis.read(buffer)) != -1) {
-                                baos.write(buffer, 0, read);
-                            }
-                        }
-                        bytes = baos.toByteArray();
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to process photo", Toast.LENGTH_SHORT).show());
                     }
-
-                    String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    String dataUrl = "data:image/jpeg;base64," + base64;
-
-                    String escapedUrl = dataUrl.replace("'", "\\'");
-                    String js = "if (window.__handleNativePhoto) { window.__handleNativePhoto('" + escapedUrl + "'); }";
-                    getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(js, null));
                 } catch (Exception e) {
                     Log.e(TAG, "Error reading captured photo file", e);
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to load captured photo", Toast.LENGTH_SHORT).show());
@@ -116,9 +149,70 @@ public class MainActivity extends BridgeActivity {
                         if (pendingCameraFile != null && pendingCameraFile.exists()) {
                             pendingCameraFile.delete();
                         }
+                        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().remove(KEY_PENDING_CAMERA).apply();
                     } catch (Exception ignored) {}
                 }
             }
+        }
+    }
+
+    private String processAndCompressCapturedPhoto(File photoFile) {
+        try {
+            String filePath = photoFile.getAbsolutePath();
+
+            // 1. Check EXIF orientation
+            int rotationAngle = 0;
+            try {
+                ExifInterface exif = new ExifInterface(filePath);
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                    rotationAngle = 90;
+                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                    rotationAngle = 180;
+                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                    rotationAngle = 270;
+                }
+            } catch (Exception ignored) {}
+
+            // 2. Read dimensions with inJustDecodeBounds
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(filePath, opts);
+
+            int maxDim = 2048;
+            int sampleSize = 1;
+            while ((opts.outWidth / sampleSize > maxDim) || (opts.outHeight / sampleSize > maxDim)) {
+                sampleSize *= 2;
+            }
+
+            // 3. Decode downsampled bitmap
+            opts.inJustDecodeBounds = false;
+            opts.inSampleSize = sampleSize;
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath, opts);
+            if (bitmap == null) return null;
+
+            // 4. Apply rotation if needed
+            if (rotationAngle != 0) {
+                Matrix matrix = new Matrix();
+                matrix.postRotate(rotationAngle);
+                Bitmap rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                if (rotated != bitmap) {
+                    bitmap.recycle();
+                    bitmap = rotated;
+                }
+            }
+
+            // 5. Compress to JPEG (88% quality, ~250KB - immune to WebView IPC limit)
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 88, baos);
+            byte[] compressedBytes = baos.toByteArray();
+            bitmap.recycle();
+
+            String base64 = Base64.encodeToString(compressedBytes, Base64.NO_WRAP);
+            return "data:image/jpeg;base64," + base64;
+        } catch (Exception e) {
+            Log.e(TAG, "Error processing and downsampling captured photo", e);
+            return null;
         }
     }
 
@@ -142,12 +236,20 @@ public class MainActivity extends BridgeActivity {
         }
 
         @JavascriptInterface
+        public String getLatestCapturedPhoto() {
+            String photo = latestCapturedPhotoDataUrl;
+            latestCapturedPhotoDataUrl = null;
+            return photo;
+        }
+
+        @JavascriptInterface
         public void saveFile(String base64Data, String filename, String mimeType) {
             try {
                 if (base64Data == null || base64Data.isEmpty()) return;
                 if (base64Data.contains(",")) {
                     base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
                 }
+                base64Data = base64Data.trim();
                 byte[] fileBytes = Base64.decode(base64Data, Base64.DEFAULT);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -191,6 +293,7 @@ public class MainActivity extends BridgeActivity {
                 if (base64Data.contains(",")) {
                     base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
                 }
+                base64Data = base64Data.trim();
                 byte[] fileBytes = Base64.decode(base64Data, Base64.DEFAULT);
 
                 File cacheDir = new File(getCacheDir(), "shared");

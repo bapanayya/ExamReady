@@ -667,13 +667,17 @@ class ExamToolkitApp {
     const searchClearBtn = document.getElementById('searchClearBtn');
     const searchDropdown = document.getElementById('searchDropdown');
 
+    let searchDebounceTimer = null;
     searchInput?.addEventListener('input', (e) => {
       this.searchQuery = e.target.value;
       if (searchClearBtn) {
         searchClearBtn.style.display = this.searchQuery.trim().length > 0 ? 'flex' : 'none';
       }
-      this.renderSearchSuggestions(this.searchQuery);
-      this.filterAndRenderExams();
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        this.renderSearchSuggestions(this.searchQuery);
+        this.filterAndRenderExams();
+      }, 150);
     });
 
     searchInput?.addEventListener('focus', () => {
@@ -947,9 +951,11 @@ class ExamToolkitApp {
       this.processImage();
     });
 
+    let nameDebounceTimer = null;
     applicantNameInput?.addEventListener('input', (e) => {
       this.settings.applicantName = e.target.value;
-      this.processImage();
+      clearTimeout(nameDebounceTimer);
+      nameDebounceTimer = setTimeout(() => this.processImage(), 300);
     });
 
     photoDateInput?.addEventListener('change', (e) => {
@@ -1346,7 +1352,11 @@ class ExamToolkitApp {
     const mime = ext === 'pdf' ? 'application/pdf' : 'image/jpeg';
 
     if (window.AndroidBridge && window.AndroidBridge.saveFile) {
-      window.AndroidBridge.saveFile(this.processedDataUrl, filename, mime);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        window.AndroidBridge.saveFile(reader.result, filename, mime);
+      };
+      reader.readAsDataURL(this.processedBlob);
       return;
     }
 
@@ -1367,7 +1377,11 @@ class ExamToolkitApp {
     const mime = ext === 'pdf' ? 'application/pdf' : 'image/jpeg';
 
     if (window.AndroidBridge && window.AndroidBridge.shareFile) {
-      window.AndroidBridge.shareFile(this.processedDataUrl, filename, mime);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        window.AndroidBridge.shareFile(reader.result, filename, mime);
+      };
+      reader.readAsDataURL(this.processedBlob);
       return;
     }
 
@@ -1388,6 +1402,25 @@ class ExamToolkitApp {
   }
 }
 
+// Convert dataURL to Blob safely without network fetch
+function dataURLtoBlob(dataurl) {
+  try {
+    const arr = dataurl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  } catch (e) {
+    console.error('Error decoding dataURLtoBlob:', e);
+    return null;
+  }
+}
+
 // Start application when DOM is ready
 window.addEventListener('DOMContentLoaded', () => {
   const app = new ExamToolkitApp();
@@ -1396,15 +1429,33 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Bridge callback for native camera capture
   window.__handleNativePhoto = (dataUrl) => {
-    fetch(dataUrl)
-      .then(res => res.blob())
-      .then(blob => {
+    try {
+      if (!dataUrl && window.AndroidBridge && window.AndroidBridge.getLatestCapturedPhoto) {
+        dataUrl = window.AndroidBridge.getLatestCapturedPhoto();
+      }
+      if (!dataUrl) return;
+      const blob = dataURLtoBlob(dataUrl);
+      if (blob) {
         const file = new File([blob], `camera_capture_${Date.now()}.jpg`, { type: 'image/jpeg' });
         app.handleFileUpload(file);
-      })
-      .catch(err => {
-        console.error('Error processing native photo capture:', err);
-        alert('Could not load captured photo.');
-      });
+      } else {
+        alert('Could not decode camera photo.');
+      }
+    } catch (err) {
+      console.error('Error handling native photo:', err);
+      alert('Could not load captured photo.');
+    }
   };
+
+  // Check for any photo that finished while activity was paused
+  const checkPendingPhoto = () => {
+    if (window.AndroidBridge && window.AndroidBridge.getLatestCapturedPhoto) {
+      const pending = window.AndroidBridge.getLatestCapturedPhoto();
+      if (pending && pending.length > 50) {
+        window.__handleNativePhoto(pending);
+      }
+    }
+  };
+  setTimeout(checkPendingPhoto, 300);
+  window.addEventListener('focus', checkPendingPhoto);
 });
